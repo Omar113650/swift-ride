@@ -129,6 +129,7 @@ model Vehicle {
   plateNumber     String    @unique
   year            Int
   image           String?
+  imagePublicId   String? 
   isActive        Boolean   @default(true)
   insuranceExpiry DateTime?
 

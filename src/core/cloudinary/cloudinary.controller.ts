@@ -4,30 +4,58 @@ import {
   UploadedFile,
   UploadedFiles,
   UseInterceptors,
+  Body,
+  Delete,
+  Param,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from './cloudinary.service';
-import { Body } from '@nestjs/common';
 
 @Controller('upload')
 export class AppController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}
 
+  // ✅ رفع صورة واحدة (مثلاً Logo أو Avatar)
   @Post('logo')
   @UseInterceptors(
-    FileInterceptor('logo', { limits: { fileSize: 10000000, files: 1 } }),
+    FileInterceptor('logo', {
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+    }),
   )
-  uploadImage(
+  async uploadImage(
     @UploadedFile() file: Express.Multer.File,
     @Body('uploadId') uploadId?: string,
   ) {
+    if (!file) {
+      throw new BadRequestException('File is required');
+    }
+
     return this.cloudinaryService.uploadFile(file, uploadId);
   }
+
+  // ✅ رفع عدة صور
   @Post('files')
   @UseInterceptors(
-    FilesInterceptor('files', 5, { limits: { fileSize: 10000000 } }),
-  ) // 5 ملفات كحد أقصى
-  uploadImages(@UploadedFiles() files: Express.Multer.File[]) {
+    FilesInterceptor('files', 5, {
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB لكل ملف
+    }),
+  )
+  async uploadImages(@UploadedFiles() files: Express.Multer.File[]) {
+    if (!files || files.length === 0) {
+      throw new BadRequestException('Files are required');
+    }
+
     return this.cloudinaryService.uploadFiles(files);
+  }
+
+  // ✅ حذف صورة
+  @Delete(':publicId')
+  async deleteFile(@Param('publicId') publicId: string) {
+    if (!publicId) {
+      throw new BadRequestException('publicId is required');
+    }
+
+    return this.cloudinaryService.deleteFile(publicId);
   }
 }
