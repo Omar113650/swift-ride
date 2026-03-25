@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { v2 as cloudinary } from 'cloudinary';
 import { randomUUID } from 'crypto';
-
-const upload_id = randomUUID();
 import * as streamifier from 'streamifier';
 
 export interface CloudinaryResponse {
@@ -33,19 +31,12 @@ export class CloudinaryService {
               quality: 'auto',
             },
           ],
-
-          // ودي لو مش عاوز اجبره علي صغيه معينه
-          //     transformation: [
-          //   {
-          //     fetch_format: 'auto',
-          //     quality: 'auto'
-          //   }
-          // ]
         },
         (error, result) => {
           if (error) {
             return reject({ error, upload_id });
           }
+
           resolve({
             ...(result as CloudinaryResponse),
             upload_id,
@@ -56,10 +47,27 @@ export class CloudinaryService {
       streamifier.createReadStream(file.buffer).pipe(uploadStream);
     });
   }
+
   async uploadFiles(
     files: Express.Multer.File[],
   ): Promise<CloudinaryResponse[]> {
+    if (!files || files.length === 0) {
+      throw new Error('No files provided');
+    }
+
     const uploadPromises = files.map((file) => this.uploadFile(file));
+
     return Promise.all(uploadPromises);
+  }
+
+  async deleteFile(publicId: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      cloudinary.uploader.destroy(publicId, (error, result) => {
+        if (error) {
+          return reject(error);
+        }
+        resolve(result);
+      });
+    });
   }
 }
