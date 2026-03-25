@@ -11,16 +11,13 @@ async function bootstrap() {
         : ['log', 'error', 'warn', 'debug', 'verbose'],
   });
 
-  // prefix
   app.setGlobalPrefix('api');
 
-  // versioning
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: '1',
   });
 
-  // validation
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -29,7 +26,6 @@ async function bootstrap() {
     }),
   );
 
-  // exception filter
   app.useGlobalFilters(new AllExceptionsFilter());
 
   const port = process.env.PORT || 8000;
@@ -40,14 +36,11 @@ async function bootstrap() {
 
 bootstrap();
 
-
-
-
-
-
-
-
 // HEAD → الكود بتاعك
 // الكود التاني → جاي من branch تاني
 
 // وإنت لازم تختار أو تدمج بينهم يدويًا.
+
+// لو عملت تعديل ولسه مسمعش ف المشروع ف اعمل دي
+// ctr+shfit+p
+// TypeScript: Restart TS Server
