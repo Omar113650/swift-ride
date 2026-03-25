@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+<<<<<<< HEAD
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { AllExceptionsFilter } from './common/logger/exception.filter';
 
@@ -36,5 +37,11 @@ async function bootstrap() {
   const port = process.env.PORT || 8000;
   await app.listen(port, '0.0.0.0');
   console.log(`Server running on http://localhost:${port}`);
+=======
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  await app.listen(process.env.PORT ?? 3000);
+>>>>>>> 9e2e0c490e798f245057b871520a2347323cb7b2
 }
 bootstrap();

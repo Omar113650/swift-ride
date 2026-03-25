@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+<<<<<<< HEAD
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './core/prisma/prisma.module';
 import { UsersModule } from './module/users/users.module';
@@ -42,3 +43,13 @@ export class AppModule {}
 //     consumer.apply(CorrelationIdMiddleware).forRoutes('*');
 //   }
 // }
+=======
+import { UsersModule } from './users/users.module';
+
+@Module({
+  imports: [UsersModule],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+>>>>>>> 9e2e0c490e798f245057b871520a2347323cb7b2
