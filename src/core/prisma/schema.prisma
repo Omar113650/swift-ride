@@ -1,0 +1,301 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+//////////////////////////////////////////////////////
+// ENUMS
+//////////////////////////////////////////////////////
+
+enum UserRole {
+  RIDER
+  DRIVER
+  ADMIN
+}
+
+enum DriverStatus {
+  ONLINE
+  OFFLINE
+  ON_RIDE
+}
+
+enum RideStatus {
+  PENDING
+  BIDDING
+  DRIVER_SELECTED
+  DRIVER_ARRIVING
+  STARTED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  WALLET
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum NotificationType {
+  RIDE_REQUEST
+  NEW_BID
+  DRIVER_SELECTED
+  DRIVER_ARRIVING
+  RIDE_STARTED
+  RIDE_COMPLETED
+  PAYMENT_SUCCESS
+  PAYMENT_FAILED
+}
+
+enum BidStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+//////////////////////////////////////////////////////
+// USER
+//////////////////////////////////////////////////////
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  phone     String   @unique
+  password  String
+  role      UserRole @default(RIDER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  rides           Ride[]         @relation("RiderRides")
+  driver          Driver?
+  notifications   Notification[]
+  ratingsReceived Rating[]       @relation("UserRatings")
+
+  @@index([role])
+}
+
+//////////////////////////////////////////////////////
+// DRIVER
+//////////////////////////////////////////////////////
+
+model Driver {
+  id     String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique
+
+  licenseNumber String
+  nationalId    String
+  status        DriverStatus @default(OFFLINE)
+  rating        Float?       @default(0)
+  isVerified    Boolean      @default(false)
+  currentRideId String?
+  lastLogin     DateTime?
+  createdAt     DateTime     @default(now())
+
+  // Relations
+  vehicles        Vehicle[]
+  rides           Ride[]          @relation("DriverRides")
+  wallet          DriverWallet?
+  location        DriverLocation?
+  rideBids        RideBid[]
+  ratingsReceived Rating[]        @relation("DriverRatings")
+
+  @@index([status])
+}
+
+//////////////////////////////////////////////////////
+// VEHICLE
+//////////////////////////////////////////////////////
+
+model Vehicle {
+  id              String    @id @default(uuid())
+  driver          Driver    @relation(fields: [driverId], references: [id])
+  driverId        String
+  type            String
+  model           String
+  color           String
+  plateNumber     String    @unique
+  year            Int
+  image           String?
+  isActive        Boolean   @default(true)
+  insuranceExpiry DateTime?
+
+  @@index([driverId])
+}
+
+//////////////////////////////////////////////////////
+// RIDE
+//////////////////////////////////////////////////////
+
+model Ride {
+  id      String @id @default(uuid())
+  rider   User   @relation(fields: [riderId], references: [id], name: "RiderRides")
+  riderId String
+
+  driver   Driver? @relation(fields: [driverId], references: [id], name: "DriverRides")
+  driverId String?
+
+  pickupLat          Float
+  pickupLng          Float
+  destinationLat     Float
+  destinationLng     Float
+  pickupAddress      String?
+  destinationAddress String?
+
+  status        RideStatus @default(PENDING)
+  selectedPrice Float?
+  distance      Float?
+  startedAt     DateTime?
+  completedAt   DateTime?
+  cancelledBy   String?
+  createdAt     DateTime   @default(now())
+
+  // Relations
+  rideBids     RideBid[]
+  payment      Payment?
+  routeHistory RideRoute[]
+
+  @@index([riderId])
+  @@index([driverId])
+  @@index([status])
+}
+
+//////////////////////////////////////////////////////
+// RIDE BIDS
+//////////////////////////////////////////////////////
+
+model RideBid {
+  id     String @id @default(uuid())
+  ride   Ride   @relation(fields: [rideId], references: [id])
+  rideId String
+
+  driver   Driver @relation(fields: [driverId], references: [id])
+  driverId String
+
+  price       Float
+  arrivalTime Int
+  isSelected  Boolean   @default(false)
+  status      BidStatus @default(PENDING)
+  createdAt   DateTime  @default(now())
+
+  @@unique([rideId, driverId])
+  @@index([rideId])
+  @@index([driverId])
+}
+
+//////////////////////////////////////////////////////
+// DRIVER LOCATION
+//////////////////////////////////////////////////////
+
+model DriverLocation {
+  driverId String @id
+  driver   Driver @relation(fields: [driverId], references: [id])
+
+  lat       Float
+  lng       Float
+  accuracy  Float?
+  speed     Float?
+  heading   Float?
+  updatedAt DateTime @updatedAt
+}
+
+//////////////////////////////////////////////////////
+// DRIVER WALLET
+//////////////////////////////////////////////////////
+
+model DriverWallet {
+  id       String @id @default(uuid())
+  driver   Driver @relation(fields: [driverId], references: [id])
+  driverId String @unique
+
+  balance           Float     @default(0)
+  currency          String    @default("EGP")
+  lastTransactionAt DateTime?
+  updatedAt         DateTime  @updatedAt
+}
+
+//////////////////////////////////////////////////////
+// PAYMENT
+//////////////////////////////////////////////////////
+
+model Payment {
+  id     String @id @default(uuid())
+  ride   Ride   @relation(fields: [rideId], references: [id])
+  rideId String @unique
+
+  amount        Float
+  method        PaymentMethod
+  status        PaymentStatus
+  transactionId String?
+  paidAt        DateTime?
+  refundId      String?
+  createdAt     DateTime      @default(now())
+}
+
+//////////////////////////////////////////////////////
+// NOTIFICATIONS
+//////////////////////////////////////////////////////
+
+model Notification {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  title     String
+  message   String
+  type      NotificationType
+  isRead    Boolean          @default(false)
+  data      Json?
+  createdAt DateTime         @default(now())
+
+  @@index([userId])
+}
+
+//////////////////////////////////////////////////////
+// RIDE ROUTE
+//////////////////////////////////////////////////////
+
+model RideRoute {
+  id     String @id @default(uuid())
+  ride   Ride   @relation(fields: [rideId], references: [id])
+  rideId String
+
+  lat       Float
+  lng       Float
+  timestamp DateTime @default(now())
+}
+
+//////////////////////////////////////////////////////
+// RATINGS
+//////////////////////////////////////////////////////
+
+model Rating {
+  id String @id @default(uuid())
+
+  user   User?   @relation("UserRatings", fields: [userId], references: [id])
+  userId String?
+
+  driver   Driver? @relation("DriverRatings", fields: [driverId], references: [id])
+  driverId String?
+
+  raterId   String
+  score     Float
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([driverId])
+}
