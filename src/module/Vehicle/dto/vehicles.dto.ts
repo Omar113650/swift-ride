@@ -11,10 +11,18 @@ export class CreateVehicleDto {
   @ApiProperty({ example: 'Toyota Corolla' })
   @IsString()
   model: string;
-  
+
   @ApiProperty({ example: 'coca-cola.png', required: true })
   @IsString()
   image:string
+// image?: Express.Multer.File;
+
+
+
+
+
+
+  
 
   @ApiProperty({ example: 'Red' })
   @IsString()

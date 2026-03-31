@@ -3,12 +3,9 @@ import {
   IsNotEmpty,
   IsOptional,
   IsEnum,
-  Max,
-  IsNumber,
-  Min,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+
 export enum DriverStatus {
   ONLINE = 'ONLINE',
   OFFLINE = 'OFFLINE',
@@ -16,7 +13,7 @@ export enum DriverStatus {
 }
 
 export class CreateDriverDto {
-  @ApiProperty({ example: 'L1234567' })
+  @ApiProperty({ example: 'license-123456' })
   @IsString()
   @IsNotEmpty()
   licenseNumber: string;
@@ -26,38 +23,32 @@ export class CreateDriverDto {
   @IsNotEmpty()
   nationalId: string;
 
-  @ApiPropertyOptional({ enum: DriverStatus })
-  @IsOptional()
+  @ApiPropertyOptional({ enum: DriverStatus, default: DriverStatus.OFFLINE })
   @IsEnum(DriverStatus)
-  status?: DriverStatus;
-}
-
-export class UpdateDriverDto {
   @IsOptional()
-  @IsEnum(DriverStatus)
-  status?: DriverStatus;
+  status?: DriverStatus = DriverStatus.OFFLINE;
 }
 
 export class UpdateDriverLocationDto {
-  @ApiProperty({ example: 31.04 })
-  @Type(() => Number)
-  @IsNumber()
-  @Min(-90)
-  @Max(90)
-  lat: number;
+  @ApiPropertyOptional({ example: 'license-123456' })
+  @IsString()
+  @IsOptional()
+  licenseNumber?: string;
 
-  @ApiProperty({ example: 30.04 })
-  @Type(() => Number)
-  @IsNumber()
-  @Min(-180)
-  @Max(180)
-  lng: number;
+  @ApiPropertyOptional({ example: '12345678901234' })
+  @IsString()
+  @IsOptional()
+  nationalId?: string;
+
+  @ApiPropertyOptional({ enum: DriverStatus })
+  @IsEnum(DriverStatus)
+  @IsOptional()
+  status?: DriverStatus;
 }
 
-export class UpdateDriverWalletDto {
-  @ApiProperty({ example: 100 })
-  @Type(() => Number)
-  @IsNumber()
-  @Min(0)
-  amount: number;
-}
+
+
+
+
+
+

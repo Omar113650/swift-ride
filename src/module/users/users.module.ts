@@ -27,5 +27,6 @@ import { PrismaService } from '../../core/prisma/prisma.service';
   controllers: [UserController],
 
   providers: [UserService, PrismaService],
+  exports: [JwtModule, UserService],
 })
 export class UsersModule {}

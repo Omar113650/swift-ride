@@ -29,18 +29,33 @@ export class VehicleService {
     };
   }
 
-  // Ensure driver exists
-  private async ensureDriverExists(driverId: string) {
-    const driver = await this.prisma.driver.findUnique({
-      where: { id: driverId },
-    });
+//   // Ensure driver exists
+//   private async ensureDriverExists(driverId: string) {
+// const driver = await this.prisma.user.findUnique({
+//   where: { id: driverId, role: 'DRIVER' },
+// });
+//     if (!driver) {
+//       throw new NotFoundException('Driver not found');
+//     }
 
-    if (!driver) {
-      throw new NotFoundException('Driver not found');
-    }
+//     return driver;
+//   }
 
-    return driver;
+
+private async ensureDriverExists(driverId: string) {
+  const driver = await this.prisma.driver.findUnique({
+    where: { id: driverId },
+  });
+
+  if (!driver) {
+    throw new NotFoundException('Driver not found');
   }
+
+  return driver;
+}
+
+
+
 
   // Ensure plate number is unique
   private async ensureUniquePlate(plateNumber: string, excludeId?: string) {
@@ -56,7 +71,7 @@ export class VehicleService {
   // Add Vehicle
   async addVehicle(
     dto: CreateVehicleDto,
-    driverId: string,
+    driverId : string,
     image?: Express.Multer.File,
   ) {
     await this.ensureDriverExists(driverId);

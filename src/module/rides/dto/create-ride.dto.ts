@@ -1,7 +1,9 @@
-import { IsUUID, IsNumber, IsEnum, IsOptional, Min, Max } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { IsString, IsOptional } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
+/**
+ * حالة الرحلة
+ */
 export enum RideStatus {
   PENDING = 'PENDING',
   BIDDING = 'BIDDING',
@@ -12,57 +14,17 @@ export enum RideStatus {
   CANCELLED = 'CANCELLED',
 }
 
-// 🚀 Rider Request DTO
 export class CreateRideDto {
-  @ApiProperty({ example: 31.04 })
-  @Type(() => Number)
-  @IsNumber()
-  @Min(-90)
-  @Max(90)
-  pickupLat: number;
+  @ApiProperty({ example: 'Mansoura, Egypt' })
+  @IsString()
+  pickupAddress: string;
 
-  @ApiProperty({ example: 30.04 })
-  @Type(() => Number)
-  @IsNumber()
-  @Min(-180)
-  @Max(180)
-  pickupLng: number;
+  @ApiProperty({ example: 'Cairo, Egypt' })
+  @IsString()
+  destinationAddress: string;
 
-  @ApiProperty({ example: 31.05 })
-  @Type(() => Number)
-  @IsNumber()
-  @Min(-90)
-  @Max(90)
-  destinationLat: number;
-
-  @ApiProperty({ example: 30.05 })
-  @Type(() => Number)
-  @IsNumber()
-  @Min(-180)
-  @Max(180)
-  destinationLng: number;
-
-  // ❌ مش client responsibility
-  // status, selectedPrice, distance => handled internally
-}
-
-// 🛠️ Update Ride DTO (Driver/Dispatch/Admin)
-export class UpdateRideDto {
+  @ApiProperty({ example: 'منطقة مزدحمة بالمرور', required: false })
   @IsOptional()
-  @IsEnum(RideStatus)
-  status?: RideStatus;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @Min(0)
-  selectedPrice?: number;
-
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @Min(0)
-  distance?: number;
-
-  // driverId مش client responsibility
+  @IsString()
+  note?: string;
 }

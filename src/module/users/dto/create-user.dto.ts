@@ -5,9 +5,10 @@ import {
   MinLength,
   MaxLength,
   Matches,
+  IsEnum,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-
+import { UserRole } from '@prisma/client';
 // Create User DTO
 export class CreateUserDto {
   @ApiProperty({ example: 'Omar Elhelaly' })
@@ -38,4 +39,8 @@ export class CreateUserDto {
     message: 'Password must include upper, lower, number and special character',
   })
   password: string;
+
+  @ApiProperty({ enum: UserRole, example: UserRole.DRIVER })
+  @IsEnum(UserRole)
+  role: UserRole;
 }

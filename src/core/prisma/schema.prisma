@@ -103,6 +103,7 @@ model Driver {
   currentRideId String?
   lastLogin     DateTime?
   createdAt     DateTime     @default(now())
+  
 
   // Relations
   vehicles        Vehicle[]
@@ -128,8 +129,8 @@ model Vehicle {
   color           String
   plateNumber     String    @unique
   year            Int
-  image           String?
-  imagePublicId   String? 
+image           String?
+imagePublicId   String?
   isActive        Boolean   @default(true)
   insuranceExpiry DateTime?
 
@@ -196,6 +197,13 @@ model RideBid {
   @@index([driverId])
 }
 
+
+
+
+
+
+
+
 //////////////////////////////////////////////////////
 // DRIVER LOCATION
 //////////////////////////////////////////////////////
@@ -203,7 +211,8 @@ model RideBid {
 model DriverLocation {
   driverId String @id
   driver   Driver @relation(fields: [driverId], references: [id])
-
+ 
+  location  Unsupported("geography(Point, 4326)")
   lat       Float
   lng       Float
   accuracy  Float?
@@ -226,6 +235,14 @@ model DriverWallet {
   lastTransactionAt DateTime?
   updatedAt         DateTime  @updatedAt
 }
+
+
+
+
+
+
+
+
 
 //////////////////////////////////////////////////////
 // PAYMENT
@@ -269,6 +286,9 @@ model Notification {
 // RIDE ROUTE
 //////////////////////////////////////////////////////
 
+
+
+
 model RideRoute {
   id     String @id @default(uuid())
   ride   Ride   @relation(fields: [rideId], references: [id])
@@ -300,3 +320,12 @@ model Rating {
   @@index([userId])
   @@index([driverId])
 }
+
+
+
+
+
+
+
+
+

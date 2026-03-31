@@ -33,7 +33,7 @@ export class UserService {
     const existingEmail = await this.prisma.user.findUnique({
       where: { email: createUserDto.email },
     });
-    console.log(existingEmail);
+    // console.log(existingEmail);
 
     if (existingEmail) {
       throw new BadRequestException('this email is already exist');
@@ -54,9 +54,9 @@ export class UserService {
     // this.logger.log(`Finding user`);
 
     return {
-      message: 'Otp sent to email',
-      tokens,
+      message: 'email register success',
       user: newUser,
+      tokens,
     };
 
     // await this.emailService.sendOtpEmail({
@@ -109,7 +109,6 @@ export class UserService {
 
     return { message: 'Logged out successfully' };
   }
-
   async refreshToken(refreshToken: string, res: Response) {
     if (!refreshToken) {
       throw new UnauthorizedException('No refresh token provided');
@@ -127,15 +126,26 @@ export class UserService {
 
     const user = await this.prisma.user.findUnique({
       where: { id: decoded.sub },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
+        isActive: true,
+      },
     });
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const { accessToken } = await generateTokens(this.jwtService, user);
+    const { accessToken, refreshToken: newRefreshToken } = await generateTokens(
+      this.jwtService,
+      user,
+    );
 
-    setAuthCookies(res, accessToken, refreshToken);
+    setAuthCookies(res, accessToken, newRefreshToken);
 
     return {
       message: 'Access token refreshed successfully',
@@ -144,18 +154,13 @@ export class UserService {
     };
   }
 
-async GetProfile() {
-  const users = await this.prisma.user.findMany();
+  async GetProfile() {
+    const users = await this.prisma.user.findMany();
 
-  if (!users || users.length === 0) {
-    throw new NotFoundException('No users found');
+    if (!users || users.length === 0) {
+      throw new NotFoundException('No users found');
+    }
+
+    return users;
   }
-
-  return users;
 }
-  }
-
-
-
-
-

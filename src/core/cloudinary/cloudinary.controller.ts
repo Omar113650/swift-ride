@@ -17,9 +17,9 @@ export class AppController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}
 
   // ✅ رفع صورة واحدة (مثلاً Logo أو Avatar)
-  @Post('logo')
+  @Post('image')
   @UseInterceptors(
-    FileInterceptor('logo', {
+    FileInterceptor('image', {
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
     }),
   )
