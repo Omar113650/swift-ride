@@ -6,11 +6,11 @@ import {
 } from '@nestjs/common';
 import { DriverService } from './drivers.service';
 import { DriverController } from './drivers.controller';
-import { AuthMiddleware } from 'src/core/middleware/auth/auth.middleware';
-import { RolesGuard } from 'src/core/guards/roles.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { UsersModule } from '../users/users.module';
-
+import { RolesGuard } from '../../core/guards/roles.guard';
+import { PrismaService } from '../../core/prisma/prisma.service';
+import { AuthMiddleware } from '../../core/middleware/auth/auth.middleware';
 @Module({
   imports: [UsersModule],
   controllers: [DriverController],

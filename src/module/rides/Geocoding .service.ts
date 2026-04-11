@@ -1,6 +1,8 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import axios from 'axios';
 
+
+// هدفي هنا اخد عنوان وارجع الاحدثيات 
 @Injectable()
 export class GeocodingService {
   async getCoordinates(address: string) {

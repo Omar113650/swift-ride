@@ -1,9 +1,6 @@
 import { IsString, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-/**
- * حالة الرحلة
- */
 export enum RideStatus {
   PENDING = 'PENDING',
   BIDDING = 'BIDDING',

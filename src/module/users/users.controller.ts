@@ -39,7 +39,7 @@ export class UserController {
   }
 
   @Post('login')
-    @HttpCode(200)
+  @HttpCode(200)
   @ApiOperation({ summary: 'Login user and set authentication cookies' })
   async login(
     @Body() body: LoginDto,
@@ -47,14 +47,14 @@ export class UserController {
   ) {
     return await this.userService.login(body, res);
   }
-// اي بوست بيرجع 201 وده غلط ف حاجات 
+  // اي بوست بيرجع 201 وده غلط ف حاجات
   @Post('logout')
   @HttpCode(200)
   @ApiOperation({ summary: 'Logout user and clear cookies' })
   async logout(@Res({ passthrough: true }) res: Response) {
     return await this.userService.logout(res);
   }
-// @ApiOkResponse({ type: "user", isArray: true })
+  // @ApiOkResponse({ type: "user", isArray: true })
   @Get('found-user')
   async findUser() {
     return await this.userService.GetProfile();
@@ -93,7 +93,39 @@ export class UserController {
   //  د عشان تشوف الداتا اللي هو استخدمها وطلعها عنك ف بتاخد منها اللي انت عاوزه وتخزنها ف الداتا بيز
   // googleCallback(@Req() req:any){
   //   const user = req.user
-  //   //يعني ده الشكل اللي بيطلع بعد ما اسجل  ف جوجل
+    //يعني ده الشكل اللي بيطلع بعد ما اسجل  ف جوجل
   //   return user
   // }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

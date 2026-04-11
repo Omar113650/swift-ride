@@ -10,6 +10,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import * as multer from 'multer';
 import { CloudinaryService } from './cloudinary.service';
 
 @Controller('upload')

@@ -74,7 +74,6 @@ export class UserService {
     if (!user) {
       throw new BadRequestException('Invalid email or password');
     }
-
     const isMatch = await bcrypt.compare(loginDto.password, user.password);
 
     if (!isMatch) {
@@ -106,9 +105,9 @@ export class UserService {
       secure: isProd,
       sameSite: isProd ? 'none' : 'lax',
     });
-
     return { message: 'Logged out successfully' };
   }
+
   async refreshToken(refreshToken: string, res: Response) {
     if (!refreshToken) {
       throw new UnauthorizedException('No refresh token provided');

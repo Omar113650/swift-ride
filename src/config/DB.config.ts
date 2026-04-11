@@ -1,17 +1,3 @@
-// import { registerAs } from '@nestjs/config';
-
-// export default registerAs('database', () => ({
-//   type: 'postgres',
-//   host: 'localhost',
-//   port: 5432,
-//   username: 'uber',
-//   password: 'Omar2023',
-//   database: 'uber',
-//   url: 'postgresql://uber:Omar2023@localhost:5432/uber',
-//   synchronize: true,
-//   autoLoadEntities: true,
-// }));
-
 import { registerAs } from '@nestjs/config';
 
 export default registerAs('database', () => ({

@@ -12,10 +12,10 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { VehicleService } from './vehicle.service';
-import { CreateVehicleDto } from './dto/vehicles.dto';
+import { CreateVehicleDto } from './dto/create-vehicles.dto';
 import { UpdateVehicleDto } from './dto/update-vehicles.dto';
-import { Roles } from 'src/core/decorators/roles.decorator';
-import { RolesGuard } from 'src/core/guards/roles.guard';
+import { Roles } from '../../core/decorators/roles.decorator';
+import { RolesGuard } from '../../core/guards/roles.guard';
 
 @Controller('vehicles')
 export class VehicleController {
@@ -24,12 +24,13 @@ export class VehicleController {
   // Add a new vehicle for a driver
   @Post('add-vehicle/:driverId')
   @UseInterceptors(FileInterceptor('image'))
-  @UseGuards(RolesGuard)
-  @Roles('DRIVER', 'ADMIN')
+  // @UseGuards(RolesGuard)
+  // @Roles('DRIVER', 'ADMIN')
   async addVehicle(
     @Param('driverId') driverId: string,
     @Body() dto: CreateVehicleDto,
     @UploadedFile() image?: Express.Multer.File,
+ 
   ) {
     return this.vehicleService.addVehicle(dto, driverId, image);
   }
@@ -43,7 +44,6 @@ export class VehicleController {
   }
 
   // Get a single vehicle by its ID  @UseGuards(RolesGuard)
-
   @UseGuards(RolesGuard)
   @Roles('DRIVER', 'ADMIN')
   @Get('single/:id')

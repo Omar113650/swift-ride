@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service';
 import { CloudinaryService } from '../../core/cloudinary/cloudinary.service';
-import { CreateVehicleDto } from './dto/vehicles.dto';
+import { CreateVehicleDto } from './dto/create-vehicles.dto';
 import { UpdateVehicleDto } from './dto/update-vehicles.dto';
 
 @Injectable()
@@ -29,33 +29,17 @@ export class VehicleService {
     };
   }
 
-//   // Ensure driver exists
-//   private async ensureDriverExists(driverId: string) {
-// const driver = await this.prisma.user.findUnique({
-//   where: { id: driverId, role: 'DRIVER' },
-// });
-//     if (!driver) {
-//       throw new NotFoundException('Driver not found');
-//     }
+  private async ensureDriverExists(driverId: string) {
+    const driver = await this.prisma.driver.findUnique({
+      where: { id: driverId },
+    });
 
-//     return driver;
-//   }
+    if (!driver) {
+      throw new NotFoundException('Driver not found');
+    }
 
-
-private async ensureDriverExists(driverId: string) {
-  const driver = await this.prisma.driver.findUnique({
-    where: { id: driverId },
-  });
-
-  if (!driver) {
-    throw new NotFoundException('Driver not found');
+    return driver;
   }
-
-  return driver;
-}
-
-
-
 
   // Ensure plate number is unique
   private async ensureUniquePlate(plateNumber: string, excludeId?: string) {
@@ -71,7 +55,7 @@ private async ensureDriverExists(driverId: string) {
   // Add Vehicle
   async addVehicle(
     dto: CreateVehicleDto,
-    driverId : string,
+    driverId: string,
     image?: Express.Multer.File,
   ) {
     await this.ensureDriverExists(driverId);
@@ -91,9 +75,11 @@ private async ensureDriverExists(driverId: string) {
 
   //  Get all vehicles for driver
   async getVehicles(driverId: string) {
-    return this.prisma.vehicle.findMany({
-      where: { driverId },
-    });
+    const vehicles = this.prisma.vehicle.findMany({ where: { driverId } });
+    if (!vehicles) {
+      throw new NotFoundException('not found any vehicles');
+    }
+    return vehicles;
   }
 
   //  Get vehicle by ID

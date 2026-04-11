@@ -5,6 +5,7 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import{GlobalExceptionFilter} from './shared/utils/http-exception.filter'
 import cookieParser from 'cookie-parser';
 
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     //  logger will be work when to test to project
@@ -38,7 +39,7 @@ async function bootstrap() {
 
   // app.useGlobalFilters(new AllExceptionsFilter());
 
-  const port = process.env.PORT || 8000;
+  const port = process.env.PORT || 3000;
   await app.listen(port, '0.0.0.0');
 
   console.log(`Server running on http://localhost:${port}`);

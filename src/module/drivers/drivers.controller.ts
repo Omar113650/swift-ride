@@ -12,14 +12,12 @@ import { DriverService } from './drivers.service';
 import { CreateDriverDto } from './dto/create-driver.dto';
 import { UpdateDriverDto } from './dto/update-driver.dto';
 import { UpdateDriverLocationDto } from './dto/create-driver.dto';
-import { RolesGuard } from 'src/core/guards/roles.guard';
-import { Roles } from 'src/core/decorators/roles.decorator';
-
+import { Roles } from '../../core/decorators/roles.decorator';
+import { RolesGuard } from '../../core/guards/roles.guard';
 @Controller('drivers')
 export class DriverController {
   constructor(private readonly driverService: DriverService) {}
 
-  // إنشاء حساب سائق
   @Post(':userId')
   @UseGuards(RolesGuard)
   @Roles('DRIVER')
@@ -30,7 +28,6 @@ export class DriverController {
     return this.driverService.createDriver(userId, dto);
   }
 
-  // تحديث بيانات السائق
   @Patch(':driverId')
   update(
     @Param('driverId', ParseUUIDPipe) driverId: string,

@@ -15,6 +15,7 @@ import { RideModule } from './module/rides/rides.module';
 import { MiddlewareConsumer } from '@nestjs/common';
 import { AuthMiddleware } from './core/middleware/auth/auth.middleware';
 import { BidsModule } from './module/bids/bids.module';
+import{RedisModule} from './core/redis/redis.module'
 
 @Module({
   imports: [
@@ -31,7 +32,9 @@ import { BidsModule } from './module/bids/bids.module';
     VehicleModule,
     DriversModule,
     RideModule,
+  
     BidsModule,
+    RedisModule
     // AuthMiddleware
   ],
 

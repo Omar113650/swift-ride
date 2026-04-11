@@ -1,6 +1,7 @@
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+
 }
 
 generator client {
@@ -159,6 +160,7 @@ model Ride {
   status        RideStatus @default(PENDING)
   selectedPrice Float?
   distance      Float?
+  polyline      String?
   startedAt     DateTime?
   completedAt   DateTime?
   cancelledBy   String?
@@ -203,24 +205,24 @@ model RideBid {
 
 
 
-
 //////////////////////////////////////////////////////
 // DRIVER LOCATION
 //////////////////////////////////////////////////////
-
 model DriverLocation {
-  driverId String @id
-  driver   Driver @relation(fields: [driverId], references: [id])
- 
-  location  Unsupported("geography(Point, 4326)")
+  driverId  String   @id
+  driver    Driver   @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
   lat       Float
   lng       Float
   accuracy  Float?
   speed     Float?
   heading   Float?
-  updatedAt DateTime @updatedAt
-}
 
+  updatedAt DateTime @updatedAt
+
+  @@index([lat, lng])
+  @@map("driver_locations")
+}
 //////////////////////////////////////////////////////
 // DRIVER WALLET
 //////////////////////////////////////////////////////
