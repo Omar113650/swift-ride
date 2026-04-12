@@ -4,7 +4,7 @@ import { UserController } from './users.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PrismaService } from '../../core/prisma/prisma.service';
-
+import{GoogleStrategy} from './Strategy/google.strategy'
 @Module({
   imports: [
     JwtModule.registerAsync({
@@ -26,7 +26,7 @@ import { PrismaService } from '../../core/prisma/prisma.service';
 
   controllers: [UserController],
 
-  providers: [UserService, PrismaService],
+  providers: [UserService, PrismaService,GoogleStrategy],
   exports: [JwtModule, UserService],
 })
 export class UsersModule {}

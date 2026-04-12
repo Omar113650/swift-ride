@@ -16,14 +16,22 @@ import { MiddlewareConsumer } from '@nestjs/common';
 import { AuthMiddleware } from './core/middleware/auth/auth.middleware';
 import { BidsModule } from './module/bids/bids.module';
 import{RedisModule} from './core/redis/redis.module'
+import { ScheduleModule } from '@nestjs/schedule';
+// import{CronService} from './core/cron/cron.service'
+import{AppGateway} from './gateways/chat.gateway'
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
+
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath:
         process.env.NODE_ENV !== 'PRODUCTION' ? '.env' : '.env.production',
       // load: [databaseConfig, jwtConfig],
+
+       
+        
     }),
 
     PrismaModule,
@@ -41,6 +49,8 @@ import{RedisModule} from './core/redis/redis.module'
   controllers: [AppController],
   providers: [
     AppService,
+    // CronService
+    AppGateway
     // {
     //   provide: APP_INTERCEPTOR,
     //   useClass: LoggingInterceptor,

@@ -6,12 +6,13 @@ import {
 import { PrismaService } from '../../core/prisma/prisma.service';
 import { CreateRideBidDto } from './dto/create-bid.dto';
 import { UpdateRideBidDto } from './dto/update-bid.dto';
-// import { SocketService } from '../socket/socket.service';
+// import{SocketService} from '../../core/socket/socket.service'
 
 @Injectable()
 export class RideBidService {
   constructor(
     private readonly prisma: PrismaService,
+    //  private socketService: SocketService,
     // private readonly socketService: SocketService, // real-time notifications
   ) {}
 
@@ -20,14 +21,25 @@ export class RideBidService {
     const ride = await this.prisma.ride.findUnique({
       where: { id: createRideBidDto.rideId },
     });
+
+
+    
+    const driver = await this.prisma.driver.findUnique({
+  where: { userId: driverId }, // أو id حسب تصميمك
+});
+
+if (!driver) {
+  throw new NotFoundException('Driver not found');
+}
     if (!ride) throw new NotFoundException('Ride not found');
     if (ride.status !== 'BIDDING' && ride.status !== 'PENDING') {
       throw new BadRequestException('Cannot bid on this ride now');
+
     }
     const newBid = await this.prisma.rideBid.create({
       data: {
         ...createRideBidDto,
-        driverId,
+        driverId:driverId,
       },
     });
 

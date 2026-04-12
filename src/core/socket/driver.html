@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Driver Notifications</title>
+</head>
+<body>
+  <h2>🚗 Driver App</h2>
+
+  <p id="status">Connecting...</p>
+
+  <div id="notifications"></div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+  <script>
+    const socket = io("http://localhost:3000", {
+      query: {
+        userId: "driver1",
+        role: "DRIVER"
+      }
+    });
+
+    const status = document.getElementById("status");
+    const notifications = document.getElementById("notifications");
+
+    socket.on("connect", () => {
+      status.innerText = "✅ Connected as Driver";
+    });
+
+    // 🚨 أهم جزء
+    socket.on("new_ride", (data) => {
+      console.log("New Ride:", data);
+
+      const div = document.createElement("div");
+      div.style.border = "1px solid #ccc";
+      div.style.padding = "10px";
+      div.style.margin = "10px 0";
+
+      div.innerHTML = `
+        🚗 <b>New Ride Request</b><br/>
+        Pickup: ${data.pickup.address}<br/>
+        Destination: ${data.destination.address}<br/>
+        Price: ${data.estimatedPrice}
+      `;
+
+      notifications.prepend(div);
+    });
+  </script>
+</body>
+</html>

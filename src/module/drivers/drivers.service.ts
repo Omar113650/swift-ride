@@ -2,16 +2,22 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Inject,
 } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service';
 import { CreateDriverDto } from './dto/create-driver.dto';
 import { UpdateDriverDto } from './dto/update-driver.dto';
-import { UpdateDriverLocationDto } from './dto/create-driver.dto';
+import { UpdateDriverLocationDto } from './dto/update-driver-location.dto';
 import { DriverStatus } from '@prisma/client';
+import { GeocodingService } from '../rides/Geocoding .service';
 
 @Injectable()
 export class DriverService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject('REDIS') private readonly redis: any,
+     private geo: GeocodingService,
+  ) {}
 
   async createDriver(userId: string, dto: CreateDriverDto) {
     const existingDriver = await this.prisma.driver.findUnique({
@@ -63,33 +69,30 @@ export class DriverService {
       data: { status },
     });
   }
+async updateLocationByAddress(driverId: string, address: string) {
+  // 🌍 تحويل العنوان إلى lat/lng
+  const coords = await this.geo.getCoordinates(address);
 
-  async updateLocation(driverId: string, dto: UpdateDriverLocationDto) {
-    const driver = await this.prisma.driver.findUnique({
-      where: { id: driverId },
-    });
-    if (!driver) throw new NotFoundException('Driver not found');
+  // 💾 حفظ في DB
+  return this.prisma.driverLocation.upsert({
+    where: { driverId },
 
-    // return this.prisma.driverLocation.upsert({
-    //   where: { driverId },
-    //   update: {
-    //     lat: dto.lat,
-    //     lng: dto.lng,
-    //     accuracy: dto.accuracy,
-    //     speed: dto.speed,
-    //     heading: dto.heading,
-    //   },
-    //   create: {
-    //     driverId,
-    //     lat: dto.lat,
-    //     lng: dto.lng,
-    //     accuracy: dto.accuracy,
-    //     speed: dto.speed,
-    //     heading: dto.heading,
-    //   },
-    // }
-    // );
-  }
+    update: {
+      lat: coords.lat,
+      lng: coords.lng,
+      lastSeen: new Date(),
+      status: 'ONLINE',
+    },
+
+    create: {
+      driverId,
+      lat: coords.lat,
+      lng: coords.lng,
+      lastSeen: new Date(),
+      status: 'ONLINE',
+    },
+  });
+}
 
   async getDriverRides(driverId: string) {
     return this.prisma.ride.findMany({
@@ -121,4 +124,43 @@ export class DriverService {
   async notifyDriver(driverId: string, type: string, data: any) {
     // this.socketService.emitToUser(driverId, type, data);
   }
+
+  // 📍 Find nearby drivers
+  async findNearbyDrivers(lat: number, lng: number) {
+    const drivers = await this.redis.geoSearch(
+      'drivers:available',
+      {
+        longitude: lng,
+        latitude: lat,
+      },
+      {
+        radius: 5,
+        unit: 'km',
+        SORT: 'ASC',
+      },
+    );
+
+    return drivers;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

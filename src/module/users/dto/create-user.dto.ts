@@ -6,6 +6,7 @@ import {
   MaxLength,
   Matches,
   IsEnum,
+  IsPhoneNumber,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
@@ -27,6 +28,7 @@ export class CreateUserDto {
   @ApiProperty({ example: '01095496184' })
   @IsString()
   @IsNotEmpty()
+  @IsPhoneNumber('EG')
   @Matches(/^01[0-9]{9}$/, { message: 'Phone must be a valid Egyptian number' })
   phone: string;
 

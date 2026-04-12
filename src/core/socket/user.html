@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User</title>
+</head>
+<body>
+  <h2>👤 User - Create Ride</h2>
+
+  <input id="pickup" placeholder="Pickup Address" value="Mansoura" />
+  <br /><br />
+  <input id="destination" placeholder="Destination" value="Cairo" />
+  <br /><br />
+
+  <button onclick="createRide()">🚀 Create Ride</button>
+
+  <p id="result"></p>
+
+  <script>
+    async function createRide() {
+      const pickup = document.getElementById("pickup").value;
+      const destination = document.getElementById("destination").value;
+
+      const res = await fetch("http://localhost:3000/rides", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          pickupAddress: pickup,
+          destinationAddress: destination
+        })
+      });
+
+      const data = await res.json();
+
+      document.getElementById("result").innerText =
+        "✅ Ride Created: " + JSON.stringify(data);
+    }
+  </script>
+</body>
+</html>

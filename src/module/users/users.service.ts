@@ -39,12 +39,20 @@ export class UserService {
       throw new BadRequestException('this email is already exist');
     }
 
+    // const Phone =  await this.prisma.user.findUnique({
+    //   where: { phone: createUserDto.phone },
+    // });
+    // if (Phone) {
+    //   throw new BadRequestException('this Phone is already exist');
+    // }
+
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
     const newUser = await this.prisma.user.create({
       data: {
         ...createUserDto,
         password: hashedPassword,
+        //  provider: 'local'
       },
     });
 
@@ -161,5 +169,42 @@ export class UserService {
     }
 
     return users;
+  }
+
+  async googleLogin(data: any) {
+    const { email, name, googleId } = data;
+
+    // 1️⃣ نشوف هل فيه GoogleAccount موجود
+    let googleAccount = await this.prisma.googleAccount.findUnique({
+      where: { googleId },
+      include: { user: true },
+    });
+
+    // 2️⃣ لو مش موجود → نعمل User + GoogleAccount
+    if (!googleAccount) {
+      const user = await this.prisma.user.create({
+        data: {
+          name,
+          email,
+          password: '',
+          phone: '',
+
+          googleAccount: {
+            create: {
+              googleId,
+              email,
+            },
+          },
+        },
+        include: {
+          googleAccount: true,
+        },
+      });
+
+      return {
+        message: 'Login successful',
+        user,
+      };
+    }
   }
 }

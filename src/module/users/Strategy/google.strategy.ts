@@ -1,23 +1,62 @@
-// /   واكلمه دي اللي هيا اعمل انترجيسن مع جوجل
+// // /   واكلمه دي اللي هيا اعمل انترجيسن مع جوجل
+// import { Injectable } from '@nestjs/common';
+// import { PassportStrategy } from '@nestjs/passport';
+// import { Profile } from 'passport';
+// import { Strategy, VerifyCallback } from 'passport-google-oauth20';
+
+// @Injectable()
+// export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
+//   constructor() {
+//     super({
+//       clientID: "796997064166-3mjj99u8r2koiispch2cl15ur2d37uis.apps.googleusercontent.com",
+//       clientSecret:"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",
+//       callbackURL:"http://localhost:3000/api/v1/auth/google/callback",
+//       //   الداتا اللي عاوز جوجل تبعتهالك
+//       scope: ['email', 'profile'],
+//     });
+//   }
+
+// // GOOGLE_CLIENT_ID=796997064166-3mjj99u8r2koiispch2cl15ur2d37uis.apps.googleusercontent.com
+// // GOOGLE_CLIENT_SECRET=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
+// // Call_Back_URL=http://localhost:3000/api/v1/auth/google/callback
+
+//   //     اسمخها فلديت عشان تبعتلي الداتا بتاعتي  لازم اعمل الفنكشن دي واخليها asyn
+//   // دي الفنكشن اللي جوجل بتبعت فيها الاكسس توكن والريفيش توكن
+
+//   async validate(
+//     accessToken: string,
+//     refreshToken: string,
+//     profile: Profile,
+//     done: VerifyCallback,
+//   ): Promise<any> {
+//     const user = {
+//       accessToken,
+//       refreshToken,
+//       profile,
+
+//     };
+
+//     return user;
+//   }
+// }
+
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Profile } from 'passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
+import { Profile } from 'passport';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor() {
     super({
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.Call_Back_URL,
+      clientID:
+        '796997064166-3mjj99u8r2koiispch2cl15ur2d37uis.apps.googleusercontent.com',
+      clientSecret: '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',
+      callbackURL: 'http://localhost:3000/api/v1/auth/google/callback',
       //   الداتا اللي عاوز جوجل تبعتهالك
       scope: ['email', 'profile'],
     });
   }
-
-  //     اسمخها فلديت عشان تبعتلي الداتا بتاعتي  لازم اعمل الفنكشن دي واخليها asyn
-  // دي الفنكشن اللي جوجل بتبعت فيها الاكسس توكن والريفيش توكن
 
   async validate(
     accessToken: string,
@@ -25,12 +64,19 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     profile: Profile,
     done: VerifyCallback,
   ): Promise<any> {
-    const user = {
-      accessToken,
-      refreshToken,
-      profile,
-    };
+    try {
+      const user = {
+        googleId: profile.id,
+        email: profile.emails?.[0]?.value,
+        name: profile.displayName,
+        accessToken, // (اختياري - مش هيتخزن في DB غالبًا)
+        refreshToken, // (اختياري)
+      };
 
-    return user;
+      // مهم جدًا: ده اللي بيخلي req.user يشتغل صح
+      done(null, user);
+    } catch (error) {
+      done(error, false);
+    }
   }
 }

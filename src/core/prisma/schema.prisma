@@ -84,7 +84,20 @@ model User {
   notifications   Notification[]
   ratingsReceived Rating[]       @relation("UserRatings")
 
+    googleAccount   GoogleAccount?  
+
   @@index([role])
+}
+
+
+
+model GoogleAccount {
+  id        String @id @default(uuid())
+  googleId  String @unique
+  email     String @unique
+  userId    String @unique
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 //////////////////////////////////////////////////////
@@ -146,6 +159,7 @@ model Ride {
   id      String @id @default(uuid())
   rider   User   @relation(fields: [riderId], references: [id], name: "RiderRides")
   riderId String
+   route String?
 
   driver   Driver? @relation(fields: [driverId], references: [id], name: "DriverRides")
   driverId String?
@@ -214,9 +228,13 @@ model DriverLocation {
 
   lat       Float
   lng       Float
+
   accuracy  Float?
   speed     Float?
   heading   Float?
+
+  status    DriverStatus @default(OFFLINE)
+  lastSeen  DateTime?
 
   updatedAt DateTime @updatedAt
 

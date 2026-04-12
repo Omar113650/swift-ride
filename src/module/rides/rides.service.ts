@@ -2,12 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service';
 import { GeocodingService } from './Geocoding .service';
 import { CreateRideDto } from './dto/create-ride.dto';
-
+// import{ChatGateway} from '../../gateways/chat.gateway'
+import{SocketService} from '../../core/socket/socket.service'
 @Injectable()
 export class RideService {
   constructor(
     private prisma: PrismaService,
     private geo: GeocodingService,
+      // private chatGateway: ChatGateway
+      private socketService: SocketService
   ) {}
 
   //  Create Ride with postgis
@@ -76,8 +79,30 @@ SELECT
   ) AS distance
 FROM "driver_locations" dl
 ORDER BY distance
-LIMIT 5;
+LIMIT 10;
 `;
+
+for (const driver of nearbyDrivers) {
+  this.socketService.emitToDriver(driver.driverId, 'new_ride', {
+    rideId: ride.id,
+
+    pickup: {
+      lat: pickup.lat,
+      lng: pickup.lng,
+      address: dto.pickupAddress,
+    },
+
+    destination: {
+      lat: destination.lat,
+      lng: destination.lng,
+      address: dto.destinationAddress,
+    },
+
+    distance,
+    estimatedTimeMinutes,
+    estimatedPrice,
+  });
+}
 
     return {
       ride,

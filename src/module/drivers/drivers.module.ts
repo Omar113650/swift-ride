@@ -11,8 +11,9 @@ import { UsersModule } from '../users/users.module';
 import { RolesGuard } from '../../core/guards/roles.guard';
 import { PrismaService } from '../../core/prisma/prisma.service';
 import { AuthMiddleware } from '../../core/middleware/auth/auth.middleware';
+import{GeocodingModule} from '../rides/geocoding.module'
 @Module({
-  imports: [UsersModule],
+  imports: [UsersModule,GeocodingModule],
   controllers: [DriverController],
   providers: [DriverService, RolesGuard],
 })

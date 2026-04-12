@@ -19,10 +19,12 @@ import { LoginDto } from './dto/login-user.dto';
 import type { Response, Request } from 'express';
 import { Strategy } from 'passport-local';
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';
+import { Roles } from '../../core/decorators/roles.decorator';
+import { RolesGuard } from '../../core/guards/roles.guard';
 
 @ApiTags('authentication')
-@Controller({ version: '1', path: 'auth' })
-@Controller('api/auth')
+// @Controller({ version: '1', path: 'auth' })
+@Controller('auth')
 @UsePipes(new ValidationPipe({ whitelist: true }))
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -70,7 +72,7 @@ export class UserController {
     return await this.userService.refreshToken(refreshToken, res);
   }
 
-  // http://localhost:3000/api/auth/google/login
+  // http://localhost:3000/api/v1/auth/google/login
 
   // دي اول ايندبوينت اللي المستخدم يكلم بيها السيرفر
   @Get('google/login')
@@ -82,50 +84,26 @@ export class UserController {
 
   //  دي تاني ايند بوينت اللي السيرفر يكلم بيها جوجل وجول يرجعلي الداتا
 
-  @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
-  // ابفنكشن دي يعتبر ملهاش لازمه بس لازم اعملها
-  googleCallback() {
-    //يعني ده الشكل اللي بيطلع بعد ما اسجل  ف جوجل
-    return 'user login....';
-  }
+  // @Get('google/callback')
+  // @UseGuards(AuthGuard('google'))
+  // // ابفنكشن دي يعتبر ملهاش لازمه بس لازم اعملها
+  // // googleCallback() {
+  // //   //يعني ده الشكل اللي بيطلع بعد ما اسجل  ف جوجل
+  // //   return 'user login....';
+  // // }
 
-  //  د عشان تشوف الداتا اللي هو استخدمها وطلعها عنك ف بتاخد منها اللي انت عاوزه وتخزنها ف الداتا بيز
+  // //  د عشان تشوف الداتا اللي هو استخدمها وطلعها عنك ف بتاخد منها اللي انت عاوزه وتخزنها ف الداتا بيز
   // googleCallback(@Req() req:any){
   //   const user = req.user
-    //يعني ده الشكل اللي بيطلع بعد ما اسجل  ف جوجل
+  //   //يعني ده الشكل اللي بيطلع بعد ما اسجل  ف جوجل
   //   return user
   // }
+
+  // @Roles('RIDER')
+  // @UseGuards(RolesGuard)
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  googleCallback(@Req() req: any) {
+    return this.userService.googleLogin(req.user);
+  }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

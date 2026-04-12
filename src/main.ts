@@ -24,14 +24,23 @@ async function bootstrap() {
     defaultVersion: '1',
   });
 
+  // app.useGlobalPipes(
+  //   new ValidationPipe({
+  //     whitelist: true,
+  //     forbidNonWhitelisted: true,
+  //     transform: true,
+  //     transformOptions: { enableImplicitConversion: true },
+  //   }),
+  // );
+
+
   app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-      transformOptions: { enableImplicitConversion: true },
-    }),
-  );
+  new ValidationPipe({
+    whitelist: true,
+    transform: true,
+    forbidNonWhitelisted: true,
+  }),
+);
 
   //  logger wii be work when to test to project
 // اداره الاخطاء و res  علي مدار البروجيكت 

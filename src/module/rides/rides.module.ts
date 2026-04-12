@@ -9,11 +9,13 @@ import { AuthMiddleware } from '../../core/middleware/auth/auth.middleware';
 import { UsersModule } from '../users/users.module';
 import { DriversModule } from '../drivers/drivers.module';
 import { MapsModule } from './maps/maps.module';
+import{AppGateway} from "../../gateways/chat.gateway"
+import{SocketService} from "../../core/socket/socket.service"
 
 @Module({
   imports: [GeocodingModule, UsersModule,DriversModule,MapsModule],
   controllers: [RideController],
-  providers: [RideService, PrismaService],
+  providers: [RideService, PrismaService,SocketService,AppGateway],
 })
 // export class RideModule {}
 export class RideModule implements NestModule {
