@@ -1,9 +1,9 @@
-// import { Module } from '@nestjs/common';
-// import { SocketService } from './socket.service';
-// import { ChatGateway } from '../../gateways/chat.gateway';
+import { Module } from '@nestjs/common';
+import { SocketService } from './socket.service';
+import { AppGateway } from '../../gateways/chat.gateway';
 
-// @Module({
-//   providers: [SocketService, ChatGateway],
-//   exports: [SocketService],
-// })
-// export class SocketModule {}
+@Module({
+  providers: [SocketService, AppGateway],
+  exports: [SocketService],
+})
+export class SocketModule {}

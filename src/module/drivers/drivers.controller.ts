@@ -111,7 +111,10 @@ export class DriverController {
     return this.driverService.findNearbyDrivers(+lat, +lng);
   }
 
-
+@Get('search')
+search(@Query('query') query: string) {
+  return this.driverService.searchDrivers(query);
+}
 
 
   

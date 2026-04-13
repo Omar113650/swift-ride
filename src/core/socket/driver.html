@@ -1,50 +1,59 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <title>Driver Notifications</title>
-</head>
-<body>
-  <h2>🚗 Driver App</h2>
+  <head>
+    <title>Driver Notifications</title>
+  </head>
+  <body>
+    <h2>🚗 Driver App</h2>
 
-  <p id="status">Connecting...</p>
+    <p id="status">Connecting...</p>
 
-  <div id="notifications"></div>
+    <div id="notifications"></div>
 
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
-  <script>
-    const socket = io("http://localhost:3000", {
-      query: {
-        userId: "driver1",
-        role: "DRIVER"
-      }
-    });
+    <script>
+      const socket = io('http://localhost:3000', {
+        query: {
+          userId: '2f9c0197-138c-4048-8900-dd1f7f7b83ba',
+          role: 'DRIVER',
+        },
+        transports: ['websocket'], // 🔥 مهم لتثبيت الاتصال
+      });
 
-    const status = document.getElementById("status");
-    const notifications = document.getElementById("notifications");
+      const status = document.getElementById('status');
+      const notifications = document.getElementById('notifications');
 
-    socket.on("connect", () => {
-      status.innerText = "✅ Connected as Driver";
-    });
+      socket.on('connect', () => {
+        status.innerText = '✅ Connected as Driver';
+        console.log('Connected:', socket.id);
+      });
 
-    // 🚨 أهم جزء
-    socket.on("new_ride", (data) => {
-      console.log("New Ride:", data);
+      socket.on('disconnect', () => {
+        status.innerText = '❌ Disconnected';
+        console.log('Disconnected');
+      });
 
-      const div = document.createElement("div");
-      div.style.border = "1px solid #ccc";
-      div.style.padding = "10px";
-      div.style.margin = "10px 0";
+      // 🚨 Receive ride request
+      socket.on('new_ride', (data) => {
+        console.log('🔥 New Ride:', data);
 
-      div.innerHTML = `
+        const div = document.createElement('div');
+        div.style.border = '1px solid #ccc';
+        div.style.padding = '10px';
+        div.style.margin = '10px 0';
+        div.style.background = '#f9f9f9';
+
+        div.innerHTML = `
         🚗 <b>New Ride Request</b><br/>
-        Pickup: ${data.pickup.address}<br/>
-        Destination: ${data.destination.address}<br/>
-        Price: ${data.estimatedPrice}
+        📍 Pickup: ${data.pickup.address}<br/>
+        🎯 Destination: ${data.destination.address}<br/>
+        💰 Price: ${data.estimatedPrice}<br/>
+        ⏱ Time: ${data.estimatedTimeMinutes} min
       `;
 
-      notifications.prepend(div);
-    });
-  </script>
-</body>
+        notifications.prepend(div);
+      });
+    </script>
+  </body>
 </html>

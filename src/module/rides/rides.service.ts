@@ -1,116 +1,145 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service';
 import { GeocodingService } from './Geocoding .service';
 import { CreateRideDto } from './dto/create-ride.dto';
-// import{ChatGateway} from '../../gateways/chat.gateway'
-import{SocketService} from '../../core/socket/socket.service'
+import { SocketService } from '../../core/socket/socket.service';
+import { PricingFactory } from './pricing/pricing.factory';
+
 @Injectable()
 export class RideService {
+  private readonly logger = new Logger(RideService.name);
+
   constructor(
     private prisma: PrismaService,
     private geo: GeocodingService,
-      // private chatGateway: ChatGateway
-      private socketService: SocketService
+    private socketService: SocketService
   ) {}
-
-  //  Create Ride with postgis
 
   async createRide(
     riderId: string,
     dto: CreateRideDto,
     calculatePrice: boolean = true,
   ) {
-    const pickup = await this.geo.getCoordinates(dto.pickupAddress);
-    const destination = await this.geo.getCoordinates(dto.destinationAddress);
+    try {
+      this.logger.log(`🚗 Creating ride for rider: ${riderId}`);
 
-    // PostGIS point for pickup
-    const pickupPoint = `ST_SetSRID(ST_MakePoint(${pickup.lng}, ${pickup.lat}), 4326)`;
-    const destinationPoint = `ST_SetSRID(ST_MakePoint(${destination.lng}, ${destination.lat}), 4326)`;
+      const pickup = await this.geo.getCoordinates(dto.pickupAddress);
+      const destination = await this.geo.getCoordinates(dto.destinationAddress);
 
-    const distance = this.calculateDistance(
-      pickup.lat,
-      pickup.lng,
-      destination.lat,
-      destination.lng,
-    );
+      const distance = this.calculateDistance(
+        pickup.lat,
+        pickup.lng,
+        destination.lat,
+        destination.lng,
+      );
 
-    const avgSpeed = 40;
-    const estimatedTimeMinutes = Math.ceil((distance / avgSpeed) * 60);
+      const avgSpeed = 40;
+      const estimatedTimeMinutes = Math.ceil((distance / avgSpeed) * 60);
 
-    let estimatedPrice: number | null = null;
+      // let estimatedPrice: number | null = null;
 
-    if (calculatePrice) {
-      estimatedPrice = distance * 0.5 + estimatedTimeMinutes * 0.2;
-    }
+      // if (calculatePrice) {
+      //   estimatedPrice = distance * 0.5 + estimatedTimeMinutes * 0.2;
+      // }
 
-    const ride = await this.prisma.ride.create({
-      data: {
-        pickupLat: pickup.lat,
-        pickupLng: pickup.lng,
-        destinationLat: destination.lat,
-        destinationLng: destination.lng,
+// factory design pattern 
+let estimatedPrice: number | null = null;
 
-        pickupAddress: dto.pickupAddress,
-        destinationAddress: dto.destinationAddress,
+if (calculatePrice) {
+  const pricingStrategy = PricingFactory.create('standard');
 
-        distance,
-        selectedPrice: estimatedPrice,
-        status: 'BIDDING',
-
-        rider: {
-          connect: { id: riderId },
-        },
-      },
-    });
-
-const nearbyDrivers = await this.prisma.$queryRaw<
-  { driverId: string; distance: number }[]
->`
-SELECT 
-  dl."driverId",
-  (
-    6371 * acos(
-      cos(radians(${pickup.lat})) * 
-      cos(radians(dl."lat")) * 
-      cos(radians(dl."lng") - radians(${pickup.lng})) + 
-      sin(radians(${pickup.lat})) * 
-      sin(radians(dl."lat"))
-    )
-  ) AS distance
-FROM "driver_locations" dl
-ORDER BY distance
-LIMIT 10;
-`;
-
-for (const driver of nearbyDrivers) {
-  this.socketService.emitToDriver(driver.driverId, 'new_ride', {
-    rideId: ride.id,
-
-    pickup: {
-      lat: pickup.lat,
-      lng: pickup.lng,
-      address: dto.pickupAddress,
-    },
-
-    destination: {
-      lat: destination.lat,
-      lng: destination.lng,
-      address: dto.destinationAddress,
-    },
-
+  estimatedPrice = pricingStrategy.calculate(
     distance,
     estimatedTimeMinutes,
-    estimatedPrice,
-  });
+  );
 }
 
-    return {
-      ride,
-      nearbyDrivers,
-      estimatedTimeMinutes,
-      estimatedPrice,
-    };
+      const ride = await this.prisma.ride.create({
+        data: {
+          pickupLat: pickup.lat,
+          pickupLng: pickup.lng,
+          destinationLat: destination.lat,
+          destinationLng: destination.lng,
+
+          pickupAddress: dto.pickupAddress,
+          destinationAddress: dto.destinationAddress,
+
+          distance,
+          selectedPrice: estimatedPrice,
+          status: 'BIDDING',
+
+          rider: {
+            connect: { id: riderId },
+          },
+        },
+      });
+
+      this.logger.log(`✅ Ride created with ID: ${ride.id}`);
+
+      const nearbyDrivers = await this.prisma.$queryRaw<
+        { driverId: string; distance: number }[]
+      >`
+      SELECT 
+        dl."driverId",
+        (
+          6371 * acos(
+            cos(radians(${pickup.lat})) * 
+            cos(radians(dl."lat")) * 
+            cos(radians(dl."lng") - radians(${pickup.lng})) + 
+            sin(radians(${pickup.lat})) * 
+            sin(radians(dl."lat"))
+          )
+        ) AS distance
+      FROM "driver_locations" dl
+      ORDER BY distance
+      LIMIT 10;
+      `;
+
+      this.logger.log(`📍 Found ${nearbyDrivers.length} nearby drivers`);
+
+      for (const driver of nearbyDrivers) {
+        this.logger.debug(`📡 Sending ride to driver: ${driver.driverId}`);
+
+        this.socketService.emitToDriver(driver.driverId, 'new_ride', {
+          rideId: ride.id,
+
+          pickup: {
+            lat: pickup.lat,
+            lng: pickup.lng,
+            address: dto.pickupAddress,
+          },
+
+          destination: {
+            lat: destination.lat,
+            lng: destination.lng,
+            address: dto.destinationAddress,
+          },
+
+          distance,
+          estimatedTimeMinutes,
+          estimatedPrice,
+        });
+      }
+
+      return {
+        ride,
+        nearbyDrivers,
+        estimatedTimeMinutes,
+        estimatedPrice,
+      };
+
+    } catch (error) {
+      this.logger.error('❌ Error creating ride', error instanceof Error ? error.stack : String(error));
+      throw error;
+    }
   }
+
+
+  
+// const { correlationId, method, url } = req;
+
+// this.logger.log(`[${correlationId}] ${method} ${url}`);
+
 
   async assignDriver(rideId: string, driverId: string) {
     return this.prisma.ride.update({

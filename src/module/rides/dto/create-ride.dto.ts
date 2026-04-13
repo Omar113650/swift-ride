@@ -24,4 +24,6 @@ export class CreateRideDto {
   @IsOptional()
   @IsString()
   note?: string;
+
+  // rideType?: 'standard' | 'premium' | 'economy';
 }

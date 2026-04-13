@@ -2,17 +2,59 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 // import { AllExceptionsFilter } from './common/logger/exception.filter';
-import{GlobalExceptionFilter} from './shared/utils/http-exception.filter'
+import { GlobalExceptionFilter } from './shared/utils/http-exception.filter'
 import cookieParser from 'cookie-parser';
+
+// ✅ Winston
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
 
 
 async function bootstrap() {
+
+const logger = WinstonModule.createLogger({
+  transports: [
+    // 🎨 Console (شكل حلو)
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize({ all: true }),
+        winston.format.timestamp(),
+        winston.format.printf(({ level, message, context, timestamp }) => {
+          return `[Nest] ${process.pid} - ${new Date(timestamp as string).toLocaleString()} ${level}${context ? ' [' + context + ']' : ''} ${message}`;
+        }),
+      ),
+    }),
+
+    // ❌ Errors only
+    new winston.transports.File({
+      filename: 'logs/error.log',
+      level: 'error',
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json(), // ✅ مهم جدًا
+      ),
+    }),
+
+    // 📁 All logs
+    new winston.transports.File({
+      filename: 'logs/combined.log',
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json(), // ✅ مهم جدًا
+      ),
+    }),
+  ],
+});
+
   const app = await NestFactory.create(AppModule, {
     //  logger will be work when to test to project
-    // logger:
-    //   process.env.NODE_ENV === 'production'
-    // ? ['log', 'error', 'warn']
-    //     : ['log', 'error', 'warn', 'debug', 'verbose'],
+    logger:
+      process.env.NODE_ENV === 'production'
+    ? ['log', 'error', 'warn']
+        : ['log', 'error', 'warn', 'debug', 'verbose'],
+
+    // ✅ ربط Winston
+    // logger,
   });
 
   app.setGlobalPrefix('api');
@@ -33,17 +75,16 @@ async function bootstrap() {
   //   }),
   // );
 
-
   app.useGlobalPipes(
-  new ValidationPipe({
-    whitelist: true,
-    transform: true,
-    forbidNonWhitelisted: true,
-  }),
-);
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
   //  logger wii be work when to test to project
-// اداره الاخطاء و res  علي مدار البروجيكت 
+  // اداره الاخطاء و res  علي مدار البروجيكت 
   app.useGlobalFilters(new GlobalExceptionFilter())
 
   // app.useGlobalFilters(new AllExceptionsFilter());
@@ -51,10 +92,14 @@ async function bootstrap() {
   const port = process.env.PORT || 3000;
   await app.listen(port, '0.0.0.0');
 
-  console.log(`Server running on http://localhost:${port}`);
+  // ❌ console.log
+  // console.log(`Server running on http://localhost:${port}`);
 
-  // user when run elatic search
-  // logger.log(`Search endpoint: GET http://localhost:${port}/products/search`);
+  // ✅ استخدم Winston
+  logger.log(`Server running on http://localhost:${port}`);
+
+  // user when run elastic search
+  logger.log(`Search endpoint: GET http://localhost:${port}/products/search`);
 }
 
 bootstrap();

@@ -8,10 +8,10 @@ import { UsersModule } from './module/users/users.module';
 import { VehicleModule } from './module/Vehicle/vehicle.module';
 import { DriversModule } from './module/drivers/drivers.module';
 import { RideModule } from './module/rides/rides.module';
-// import { APP_INTERCEPTOR } from '@nestjs/core';
-// import { LoggingInterceptor } from './common/logger/logging.interceptor';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggingInterceptor } from './common/logger/logging.interceptor';
 // import { MiddlewareConsumer, NestModule } from '@nestjs/common';
-// import { CorrelationIdMiddleware } from './common/logger/correlation-id.middleware';
+import { CorrelationIdMiddleware } from './common/logger/correlation-id.middleware';
 import { MiddlewareConsumer } from '@nestjs/common';
 import { AuthMiddleware } from './core/middleware/auth/auth.middleware';
 import { BidsModule } from './module/bids/bids.module';
@@ -19,6 +19,7 @@ import{RedisModule} from './core/redis/redis.module'
 import { ScheduleModule } from '@nestjs/schedule';
 // import{CronService} from './core/cron/cron.service'
 import{AppGateway} from './gateways/chat.gateway'
+import{SocketModule} from './core/socket/socket.module'
 
 @Module({
   imports: [
@@ -42,7 +43,8 @@ import{AppGateway} from './gateways/chat.gateway'
     RideModule,
   
     BidsModule,
-    RedisModule
+    RedisModule,
+    SocketModule
     // AuthMiddleware
   ],
 
@@ -50,11 +52,11 @@ import{AppGateway} from './gateways/chat.gateway'
   providers: [
     AppService,
     // CronService
-    AppGateway
-    // {
-    //   provide: APP_INTERCEPTOR,
-    //   useClass: LoggingInterceptor,
-    // },
+    AppGateway,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
   ],
 })
 export class AppModule {}
