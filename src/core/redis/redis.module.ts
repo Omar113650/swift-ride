@@ -40,10 +40,12 @@
 
 // in docker 
 
-
 import { Global, Module } from '@nestjs/common';
 import { createClient } from 'redis';
-import{RideGateway} from './ride.gateway'
+import{RedisService} from '../../common/logger/cache/redis.service'
+
+
+
 @Global()
 @Module({
   providers: [
@@ -51,30 +53,31 @@ import{RideGateway} from './ride.gateway'
       provide: 'REDIS',
       useFactory: async () => {
         const client = createClient({
+          username: 'default',
+          password: 'JTH64LWaQ8Hr1bBsc9s8G1FJUbx61jXq',
           socket: {
-            host: 'localhost',
-            port: 6379,
+            host: 'redis-19539.c16.us-east-1-2.ec2.cloud.redislabs.com',
+            port: 19539,
           },
         });
 
         client.on('error', (err) =>
-          console.log('Redis Error:', err),
+          console.log('❌ Redis Error:', err),
         );
 
         await client.connect();
+
+        console.log('✅ Redis Connected');
+
         return client;
       },
+      
     },
-
-    RideGateway
+    RedisService
   ],
-  exports: ['REDIS'],
-
+  exports: ['REDIS',RedisService],
 })
 export class RedisModule {}
-
-
-
 
 //  to use
 

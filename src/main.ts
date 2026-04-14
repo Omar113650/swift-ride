@@ -4,6 +4,9 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 // import { AllExceptionsFilter } from './common/logger/exception.filter';
 import { GlobalExceptionFilter } from './shared/utils/http-exception.filter'
 import cookieParser from 'cookie-parser';
+import { createBullBoard } from '@bull-board/api';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { ExpressAdapter } from '@bull-board/express';
 
 // ✅ Winston
 import { WinstonModule } from 'nest-winston';
@@ -11,6 +14,11 @@ import * as winston from 'winston';
 
 
 async function bootstrap() {
+
+
+
+
+
 
 const logger = WinstonModule.createLogger({
   transports: [
@@ -65,6 +73,38 @@ const logger = WinstonModule.createLogger({
     type: VersioningType.URI,
     defaultVersion: '1',
   });
+
+
+
+
+
+// http://localhost:3000/admin/queues/queue/ride
+
+// 🚀 2. الطريقة الصح (Dashboard)
+
+// لازم تستخدم UI تشوف منه الـ Queue
+
+// 🔥 استخدم:
+// 👉 Bull Board
+
+  const serverAdapter = new ExpressAdapter();
+  serverAdapter.setBasePath('/admin/queues');
+
+  createBullBoard({
+    queues: [
+      new BullMQAdapter(app.get('BullQueue_ride')),
+    ],
+    serverAdapter,
+  });
+
+  app.use('/admin/queues', serverAdapter.getRouter());
+
+
+
+
+
+
+
 
   // app.useGlobalPipes(
   //   new ValidationPipe({

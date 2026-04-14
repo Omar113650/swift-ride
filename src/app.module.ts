@@ -17,7 +17,7 @@ import { AuthMiddleware } from './core/middleware/auth/auth.middleware';
 import { BidsModule } from './module/bids/bids.module';
 import{RedisModule} from './core/redis/redis.module'
 import { ScheduleModule } from '@nestjs/schedule';
-// import{CronService} from './core/cron/cron.service'
+import{CronService} from './core/cron/cron.service'
 import{AppGateway} from './gateways/chat.gateway'
 import{SocketModule} from './core/socket/socket.module'
 
@@ -53,6 +53,7 @@ import{SocketModule} from './core/socket/socket.module'
     AppService,
     // CronService
     AppGateway,
+    CronService,
     {
       provide: APP_INTERCEPTOR,
       useClass: LoggingInterceptor,

@@ -160,15 +160,17 @@ import { UpdateDriverLocationDto } from './dto/update-driver-location.dto';
 import { DriverStatus } from '@prisma/client';
 import { GeocodingService } from '../rides/Geocoding .service';
 import { Client } from '@elastic/elasticsearch';
-
+import{RedisService} from "../../common/logger/cache/redis.service"
 @Injectable()
 export class DriverService {
   private elastic: Client;
 
   constructor(
     private prisma: PrismaService,
-    @Inject('REDIS') private readonly redis: any,
+    // @Inject('REDIS') private readonly redis: any,
     private geo: GeocodingService,
+      @Inject('REDIS') private readonly redis: any,
+       private redisService: RedisService
   ) {
     // Elasticsearch client
     this.elastic = new Client({
@@ -206,9 +208,17 @@ export class DriverService {
     return driver;
   }
 
-  // =========================
-  // GET ALL DRIVERS
-  // =========================
+
+
+
+
+
+
+
+
+  // // =========================
+  // // GET ALL DRIVERS
+  // // =========================
   async getDrivers() {
     const drivers = await this.prisma.driver.findMany();
 
@@ -220,6 +230,48 @@ export class DriverService {
       data: drivers,
     };
   }
+
+
+
+
+// add cache 
+
+// async getDrivers() {
+//   const cacheKey = 'drivers:all';
+
+//   // 1) Check cache first
+//   const cachedDrivers = await this.redisService.getCache(cacheKey);
+
+//   if (cachedDrivers) {
+//     return {
+//       source: 'cache',
+//       data: cachedDrivers,
+//     };
+//   }
+
+//   // 2) DB fallback
+//   const drivers = await this.prisma.driver.findMany();
+
+//   if (!drivers.length) {
+//     throw new NotFoundException('No drivers found');
+//   }
+
+//   // 3) Save to cache
+//   await this.redisService.setCache(cacheKey, drivers, 300); // 5 min TTL
+
+//   return {
+//     source: 'db',
+//     data: drivers,
+//   };
+// }
+
+
+
+
+
+
+
+
 
   // =========================
   // UPDATE DRIVER

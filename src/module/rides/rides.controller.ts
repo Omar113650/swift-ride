@@ -15,11 +15,17 @@ import { CreateRideDto } from './dto/create-ride.dto';
 // import { JwtAuthGuard } from 'src/core/guards/jwt-auth.guard';
 import { Roles } from '../../core/decorators/roles.decorator';
 import { RolesGuard } from '../../core/guards/roles.guard';
+// import{RidesService} from '../../core/redis/ride.gateway'
 
 @ApiTags('Rides')
 @Controller('rides')
 export class RideController {
-  constructor(private readonly rideService: RideService) {}
+  constructor(
+    private readonly rideService: RideService,
+    // private readonly Rides: RidesService
+
+
+  ) {}
 
   @Post('add-ride')
   @ApiOperation({ summary: 'Create a new ride' })
@@ -81,4 +87,31 @@ export class RideController {
   async getRide(@Param('rideId') rideId: string) {
     return this.rideService.getRide(rideId);
   }
+
+
+
+
+
+
+
+
+
+// @Get(':rideId/route')
+// getRoute(@Param('rideId') rideId: string) {
+//   return this.Rides.getRideRoute(rideId);
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
