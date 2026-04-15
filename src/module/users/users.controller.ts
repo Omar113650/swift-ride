@@ -21,6 +21,7 @@ import { Strategy } from 'passport-local';
 import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { Roles } from '../../core/decorators/roles.decorator';
 import { RolesGuard } from '../../core/guards/roles.guard';
+import { GoogleAuthGuard } from './Strategy/GoogleAuthGuard';
 
 @ApiTags('authentication')
 // @Controller({ version: '1', path: 'auth' })
@@ -74,13 +75,22 @@ export class UserController {
 
   // http://localhost:3000/api/v1/auth/google/login
 
+
   // دي اول ايندبوينت اللي المستخدم يكلم بيها السيرفر
+  // @Get('google/login')
+
+  //   @UseGuards(GoogleAuthGuard)
+  // // ابفنكشن دي يعتبر ملهاش لازمه بس لازم اعملها
+  // googleLogin() {
+  //   return 'hello';
+  // }
+
+
   @Get('google/login')
-  @UseGuards(AuthGuard('google'))
-  // ابفنكشن دي يعتبر ملهاش لازمه بس لازم اعملها
-  googleLogin() {
-    return 'hello';
-  }
+@UseGuards(GoogleAuthGuard)
+googleLogin() {
+  return 'redirecting...';
+}
 
   //  دي تاني ايند بوينت اللي السيرفر يكلم بيها جوجل وجول يرجعلي الداتا
 
@@ -99,10 +109,11 @@ export class UserController {
   //   return user
   // }
 
-  // @Roles('RIDER')
-  // @UseGuards(RolesGuard)
+
   @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleAuthGuard)
+
+
   googleCallback(@Req() req: any) {
     return this.userService.googleLogin(req.user);
   }
