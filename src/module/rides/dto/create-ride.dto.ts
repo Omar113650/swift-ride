@@ -1,4 +1,4 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export enum RideStatus {
@@ -12,6 +12,10 @@ export enum RideStatus {
 }
 
 export class CreateRideDto {
+
+  @IsUUID()
+  rideId: string
+
   @ApiProperty({ example: 'Mansoura, Egypt' })
   @IsString()
   pickupAddress: string;

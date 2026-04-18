@@ -12,8 +12,8 @@ export class CreateVehicleDto {
   @IsString()
   model: string;
 
-  // @ApiProperty({ example: 'coca-cola.png', required: true })
-  // image?: Express.Multer.File;
+  @ApiProperty({ example: 'coca-cola.png', required: true })
+  image?: Express.Multer.File;
 
   @ApiProperty({ example: 'Red' })
   @IsString()

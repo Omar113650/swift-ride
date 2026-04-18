@@ -37,15 +37,74 @@ import { RideConsumer } from '../../common/logger/cache/ride.consumer';
 // REDIS_PASS=JTH64LWaQ8Hr1bBsc9s8G1FJUbx61jXq
 
 
-    BullModule.registerQueue({
-      name: 'ride',
-      connection: {
-        host: "redis-19539.c16.us-east-1-2.ec2.cloud.redislabs.com",
-        port: 19539,
-        username: "default",
-        password:"JTH64LWaQ8Hr1bBsc9s8G1FJUbx61jXq",
-      },
-    }),
+    // BullModule.registerQueue({
+    //   name: 'ride',
+    //   connection: {
+    //     host: "redis-19539.c16.us-east-1-2.ec2.cloud.redislabs.com",
+    //     port: 19539,
+    //     username: "default",
+    //     password:"JTH64LWaQ8Hr1bBsc9s8G1FJUbx61jXq",
+    //   },
+    // }),
+
+
+
+
+
+
+
+// Retry mechanism
+// ✔ Dead Letter Queue (failed handling)
+// ✔ Proper BullMQ config
+// ✔ Worker safe error handling
+// ✔ Queue add options
+
+
+
+BullModule.registerQueue({
+  name: 'ride',
+  connection: {
+    host: 'redis-19539.c16.us-east-1-2.ec2.cloud.redislabs.com',
+    port: 19539,
+    username: 'default',
+    password: 'JTH64LWaQ8Hr1bBsc9s8G1FJUbx61jXq',
+  },
+
+  defaultJobOptions: {
+    attempts: 5,
+    backoff: {
+      type: 'exponential',
+      delay: 2000,
+    },
+    removeOnComplete: true,
+    removeOnFail: false,
+  },
+}),
+
+// 💀 لازم تضيف دي
+BullModule.registerQueue({
+  name: 'ride-dead-letter',
+  connection: {
+    host: 'redis-19539.c16.us-east-1-2.ec2.cloud.redislabs.com',
+    port: 19539,
+    username: 'default',
+    password: 'JTH64LWaQ8Hr1bBsc9s8G1FJUbx61jXq',
+  },
+}),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   ],

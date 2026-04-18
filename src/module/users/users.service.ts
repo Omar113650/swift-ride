@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-// import { randomInt } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { plainToInstance } from 'class-transformer';
 import { generateTokens } from '../../shared/utils/Token';
@@ -20,31 +19,27 @@ import { LoginDto } from './dto/login-user.dto';
 import { Response } from 'express';
 // import { Logger } from '@nestjs/common';
 // import { CustomLoggerService } from '../../common/logger/custom-logger.service';
+
 @Injectable()
 export class UserService {
   // private readonly logger = new Logger(UserService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     // private logger: CustomLoggerService,
   ) {}
 
+  // @desc Register user
+  // @route POST /auth/register
+  // @access Public
   async Register(createUserDto: CreateUserDto, res: Response) {
     const existingEmail = await this.prisma.user.findUnique({
       where: { email: createUserDto.email },
     });
-    // console.log(existingEmail);
-
     if (existingEmail) {
       throw new BadRequestException('this email is already exist');
     }
-
-    // const Phone =  await this.prisma.user.findUnique({
-    //   where: { phone: createUserDto.phone },
-    // });
-    // if (Phone) {
-    //   throw new BadRequestException('this Phone is already exist');
-    // }
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
@@ -52,7 +47,6 @@ export class UserService {
       data: {
         ...createUserDto,
         password: hashedPassword,
-        //  provider: 'local'
       },
     });
 
@@ -66,14 +60,11 @@ export class UserService {
       user: newUser,
       tokens,
     };
-
-    // await this.emailService.sendOtpEmail({
-    //   to: createUserDto.email,
-    //   otp,
-    //   subject: 'Your OTP Code',
-    // });
   }
 
+  // @desc Login user
+  // @route POST /auth/login
+  // @access Public
   async login(loginDto: LoginDto, res: Response) {
     const user = await this.prisma.user.findUnique({
       where: { email: loginDto.email },
@@ -82,6 +73,7 @@ export class UserService {
     if (!user) {
       throw new BadRequestException('Invalid email or password');
     }
+
     const isMatch = await bcrypt.compare(loginDto.password, user.password);
 
     if (!isMatch) {
@@ -93,14 +85,15 @@ export class UserService {
 
     const safeUser = plainToInstance(Object, user);
 
-
-    
     return {
       user: safeUser,
       tokens,
     };
   }
 
+  // @desc Logout user
+  // @route POST /auth/logout
+  // @access Private
   async logout(res: Response) {
     const isProd = process.env.NODE_ENV === 'production';
 
@@ -115,9 +108,13 @@ export class UserService {
       secure: isProd,
       sameSite: isProd ? 'none' : 'lax',
     });
+
     return { message: 'Logged out successfully' };
   }
 
+  // @desc Refresh token
+  // @route POST /auth/refresh
+  // @access Public
   async refreshToken(refreshToken: string, res: Response) {
     if (!refreshToken) {
       throw new UnauthorizedException('No refresh token provided');
@@ -163,6 +160,9 @@ export class UserService {
     };
   }
 
+  // @desc Get all users
+  // @route GET /users
+  // @access Private
   async GetProfile() {
     const users = await this.prisma.user.findMany();
 
@@ -173,40 +173,46 @@ export class UserService {
     return users;
   }
 
-  async googleLogin(data: any) {
-    const { email, name, googleId } = data;
+  // @desc Google login
+  // @route POST /auth/google
+  // @access Public
+async googleLogin(data: any) {
+  const { email, name, googleId } = data;
 
-    // 1️⃣ نشوف هل فيه GoogleAccount موجود
-    let googleAccount = await this.prisma.googleAccount.findUnique({
-      where: { googleId },
-      include: { user: true },
-    });
+  let googleAccount = await this.prisma.googleAccount.findUnique({
+    where: { googleId },
+    include: { user: true },
+  });
 
-    // 2️⃣ لو مش موجود → نعمل User + GoogleAccount
-    if (!googleAccount) {
-      const user = await this.prisma.user.create({
-        data: {
-          name,
-          email,
-          password: '',
-          phone: '',
-
-          googleAccount: {
-            create: {
-              googleId,
-              email,
-            },
+  if (!googleAccount) {
+    const user = await this.prisma.user.create({
+      data: {
+        name,
+        email,
+        password: '',
+        phone: '',
+        googleAccount: {
+          create: {
+            googleId,
+            email,
           },
         },
-        include: {
-          googleAccount: true,
-        },
-      });
+      },
+      include: {
+        googleAccount: true,
+      },
+    });
 
-      return {
-        message: 'Login successful',
-        user,
-      };
-    }
+    return {
+      message: 'Login successful',
+      user,
+    };
   }
+
+
+  return {
+    message: 'Login successful',
+    user: googleAccount.user,
+  };
+}
 }

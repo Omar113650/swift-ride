@@ -27,8 +27,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
         googleId: profile.id,
         email: profile.emails?.[0]?.value,
         name: profile.displayName,
-        accessToken, // (اختياري - مش هيتخزن في DB غالبًا)
-        refreshToken, // (اختياري),
+        accessToken, 
+        refreshToken, 
         // profile
       };
 

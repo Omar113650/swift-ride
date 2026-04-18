@@ -24,8 +24,9 @@ export class VehicleController {
   // Add a new vehicle for a driver
   @Post('add-vehicle/:driverId')
   @UseInterceptors(FileInterceptor('image'))
-  // @UseGuards(RolesGuard)
-  // @Roles('DRIVER', 'ADMIN')
+
+  @UseGuards(RolesGuard)
+  @Roles('DRIVER')
   async addVehicle(
     @Param('driverId') driverId: string,
     @Body() dto: CreateVehicleDto,
@@ -35,7 +36,7 @@ export class VehicleController {
     return this.vehicleService.addVehicle(dto, driverId, image);
   }
 
-  //  Get all vehicles for a specific driver
+  // Get all vehicles for a specific driver
   @UseGuards(RolesGuard)
   @Roles('DRIVER')
   @Get(':driverId')

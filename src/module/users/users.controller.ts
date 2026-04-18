@@ -17,14 +17,9 @@ import { UserService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login-user.dto';
 import type { Response, Request } from 'express';
-import { Strategy } from 'passport-local';
-import { AuthGuard, PassportStrategy } from '@nestjs/passport';
-import { Roles } from '../../core/decorators/roles.decorator';
-import { RolesGuard } from '../../core/guards/roles.guard';
 import { GoogleAuthGuard } from './Strategy/GoogleAuthGuard';
 
 @ApiTags('authentication')
-// @Controller({ version: '1', path: 'auth' })
 @Controller('auth')
 @UsePipes(new ValidationPipe({ whitelist: true }))
 export class UserController {
@@ -33,7 +28,7 @@ export class UserController {
   @Post('register')
   // دي عشان execlude  اللي حاططها ف الداتا بيز تشتغل
   @UseInterceptors(ClassSerializerInterceptor)
-  @ApiOperation({ summary: 'Register new user with OTP verification' })
+  @ApiOperation({ summary: 'Register new user ' })
   async register(
     @Body() body: CreateUserDto,
     @Res({ passthrough: true }) res: Response,
@@ -42,7 +37,7 @@ export class UserController {
   }
 
   @Post('login')
-  @HttpCode(200)
+  @HttpCode(201)
   @ApiOperation({ summary: 'Login user and set authentication cookies' })
   async login(
     @Body() body: LoginDto,
@@ -50,14 +45,14 @@ export class UserController {
   ) {
     return await this.userService.login(body, res);
   }
-  // اي بوست بيرجع 201 وده غلط ف حاجات
+
   @Post('logout')
   @HttpCode(200)
   @ApiOperation({ summary: 'Logout user and clear cookies' })
   async logout(@Res({ passthrough: true }) res: Response) {
     return await this.userService.logout(res);
   }
-  // @ApiOkResponse({ type: "user", isArray: true })
+
   @Get('found-user')
   async findUser() {
     return await this.userService.GetProfile();
@@ -77,44 +72,21 @@ export class UserController {
 
 
   // دي اول ايندبوينت اللي المستخدم يكلم بيها السيرفر
-  // @Get('google/login')
-
-  //   @UseGuards(GoogleAuthGuard)
-  // // ابفنكشن دي يعتبر ملهاش لازمه بس لازم اعملها
-  // googleLogin() {
-  //   return 'hello';
-  // }
-
-
   @Get('google/login')
-@UseGuards(GoogleAuthGuard)
-googleLogin() {
-  return 'redirecting...';
-}
+  @UseGuards(GoogleAuthGuard)
+  googleLogin() {
+    return 'redirecting...';
+  }
 
   //  دي تاني ايند بوينت اللي السيرفر يكلم بيها جوجل وجول يرجعلي الداتا
 
-  // @Get('google/callback')
-  // @UseGuards(AuthGuard('google'))
-  // // ابفنكشن دي يعتبر ملهاش لازمه بس لازم اعملها
-  // // googleCallback() {
-  // //   //يعني ده الشكل اللي بيطلع بعد ما اسجل  ف جوجل
-  // //   return 'user login....';
-  // // }
-
-  // //  د عشان تشوف الداتا اللي هو استخدمها وطلعها عنك ف بتاخد منها اللي انت عاوزه وتخزنها ف الداتا بيز
-  // googleCallback(@Req() req:any){
-  //   const user = req.user
-  //   //يعني ده الشكل اللي بيطلع بعد ما اسجل  ف جوجل
-  //   return user
-  // }
-
-
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
-
-
   googleCallback(@Req() req: any) {
     return this.userService.googleLogin(req.user);
   }
 }
+
+
+
+

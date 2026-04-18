@@ -20,6 +20,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import{CronService} from './core/cron/cron.service'
 import{AppGateway} from './gateways/chat.gateway'
 import{SocketModule} from './core/socket/socket.module'
+import { HealthModule } from './module/health/health.module';
 
 @Module({
   imports: [
@@ -44,8 +45,9 @@ import{SocketModule} from './core/socket/socket.module'
   
     BidsModule,
     RedisModule,
-    SocketModule
-    // AuthMiddleware
+    SocketModule,
+    // AuthMiddleware,
+    HealthModule
   ],
 
   controllers: [AppController],

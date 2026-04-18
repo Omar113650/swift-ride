@@ -29,22 +29,22 @@ export class CreateDriverDto {
   status?: DriverStatus = DriverStatus.OFFLINE;
 }
 
-export class UpdateDriverLocationDto {
-  @ApiPropertyOptional({ example: 'license-123456' })
-  @IsString()
-  @IsOptional()
-  licenseNumber?: string;
+// export class UpdateDriverLocationDto {
+//   @ApiPropertyOptional({ example: 'license-123456' })
+//   @IsString()
+//   @IsOptional()
+//   licenseNumber?: string;
 
-  @ApiPropertyOptional({ example: '12345678901234' })
-  @IsString()
-  @IsOptional()
-  nationalId?: string;
+//   @ApiPropertyOptional({ example: '12345678901234' })
+//   @IsString()
+//   @IsOptional()
+//   nationalId?: string;
 
-  @ApiPropertyOptional({ enum: DriverStatus })
-  @IsEnum(DriverStatus)
-  @IsOptional()
-  status?: DriverStatus;
-}
+//   @ApiPropertyOptional({ enum: DriverStatus })
+//   @IsEnum(DriverStatus)
+//   @IsOptional()
+//   status?: DriverStatus;
+// }
 
 
 
