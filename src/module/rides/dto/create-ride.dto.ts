@@ -14,6 +14,7 @@ export enum RideStatus {
 export class CreateRideDto {
 
   @IsUUID()
+  @IsOptional()
   rideId: string
 
   @ApiProperty({ example: 'Mansoura, Egypt' })

@@ -3,6 +3,7 @@ import axios from 'axios';
 
 
 // هدفي هنا اخد عنوان وارجع الاحدثيات 
+// use :: https://nominatim.openstreetmap.org/ui/search.html
 @Injectable()
 export class GeocodingService {
   async getCoordinates(address: string) {

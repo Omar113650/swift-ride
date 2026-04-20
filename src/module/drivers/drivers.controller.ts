@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   UseGuards,
   Query,
+  Req,
 } from '@nestjs/common';
 import { DriverService } from './drivers.service';
 import { CreateDriverDto } from './dto/create-driver.dto';
@@ -61,8 +62,8 @@ export class DriverController {
   @Get()
   @UseGuards(RolesGuard)
   @Roles('DRIVER')
-  async getDrivers() {
-    return this.driverService.getDrivers();
+  async getDrivers(@Req() req) {
+    return this.driverService.getDrivers(req);
   }
 
   @Get('nearby')

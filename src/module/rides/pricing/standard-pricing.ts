@@ -1,3 +1,4 @@
+
 import { PricingStrategy } from './base-pricing';
 
 export class StandardPricing implements PricingStrategy {

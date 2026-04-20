@@ -2,6 +2,9 @@
 
 // خليني أطبق لك المفاهيم الأربعة على Schema بتاعك + Prisma + PostgreSQL بشكل عملي جدًا.
 
+
+
+
 // 🚀 أولًا: Indexing (تحسين السرعة)
 // 📌 عندك indexes كويسة بس ناقص أهم حاجات
 // ✔ موجود عندك:
@@ -190,3 +193,264 @@
 // 🔥 load testing + bottleneck analysis
 
 // قولّي 👍
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // async createRide(
+  //   riderId: string,
+  //   dto: CreateRideDto,
+  //   calculatePrice: boolean = true,
+  // ) {
+  //   try {
+  //     this.logger.log(`🚗 Creating ride for rider: ${riderId}`);
+
+  //     // 🧠 0️⃣ Idempotency Check (by rideId)
+  //     if (dto.rideId) {
+  //       const existingRide = await this.prisma.ride.findUnique({
+  //         where: {
+  //           id: dto.rideId,
+  //         },
+  //       });
+
+  //       if (existingRide) {
+  //         this.logger.log('♻️ Ride already exists, returning existing ride');
+
+  //         return {
+  //           ride: existingRide,
+  //           message: 'Ride already created (idempotent response) ♻️',
+  //         };
+  //       }
+  //     }
+
+      // 1️⃣ Get coordinates
+  //     const pickup = await this.geo.getCoordinates(dto.pickupAddress);
+  //     const destination = await this.geo.getCoordinates(dto.destinationAddress);
+
+      // 2️⃣ Distance calculation
+  //     const distance = this.calculateDistance(
+  //       pickup.lat,
+  //       pickup.lng,
+  //       destination.lat,
+  //       destination.lng,
+  //     );
+
+  //     // 3️⃣ ETA
+  //     const avgSpeed = 40;
+  //     const estimatedTimeMinutes = Math.ceil((distance / avgSpeed) * 60);
+
+
+
+
+
+
+      //         const estimatedTimeMinutes = Math.ceil((distance / avgSpeed) * 60);
+
+        // let estimatedPrice: number | null = null;
+
+        // if (calculatePrice) {
+        //   estimatedPrice = distance * 0.5 + estimatedTimeMinutes * 0.2;
+        // }
+
+
+
+
+  //     // apply  factory design pattern
+  //     // 4️⃣ Pricing
+  //     let estimatedPrice: number | null = null;
+
+  //     if (calculatePrice) {
+  //       const pricingStrategy = PricingFactory.create('standard');
+
+  //       estimatedPrice = pricingStrategy.calculate(
+  //         distance,
+  //         estimatedTimeMinutes,
+  //       );
+  //     }
+
+  //     // 5️⃣ Save ride in DB
+  //     const ride = await this.prisma.ride.create({
+  //       data: {
+  //         id: dto.rideId, // 👈 important for idempotency
+
+  //         pickupLat: pickup.lat,
+  //         pickupLng: pickup.lng,
+  //         destinationLat: destination.lat,
+  //         destinationLng: destination.lng,
+
+  //         pickupAddress: dto.pickupAddress,
+  //         destinationAddress: dto.destinationAddress,
+
+  //         distance,
+  //         selectedPrice: estimatedPrice,
+  //         status: 'BIDDING',
+
+  //         rider: {
+  //           connect: { id: riderId },
+  //         },
+  //       },
+  //     });
+
+  //     this.logger.log(`✅ Ride created with ID: ${ride.id}`);
+
+
+
+  //     // ✔ Retry mechanism
+  //     // ✔ Dead Letter Queue (failed handling)
+  //     // ✔ Proper BullMQ config
+  //     // ✔ Worker safe error handling
+  //     // ✔ Queue add options
+
+  //     await this.rideQueue.add(
+  //       'ride-created',
+  //       {
+  //         rideId: ride.id,
+  //         riderId,
+
+  //         pickup: {
+  //           lat: pickup.lat,
+  //           lng: pickup.lng,
+  //           address: dto.pickupAddress,
+  //         },
+
+  //         destination: {
+  //           lat: destination.lat,
+  //           lng: destination.lng,
+  //           address: dto.destinationAddress,
+  //         },
+
+  //         distance,
+  //         estimatedTimeMinutes,
+  //         estimatedPrice,
+  //       },
+  //       {
+  //         attempts: 5,
+  //         backoff: {
+  //           type: 'exponential',
+  //           delay: 2000,
+  //         },
+  //         removeOnComplete: true,
+  //         removeOnFail: false,
+  //       },
+  //     );
+
+  //     this.logger.log(`📦 Ride queued for processing: ${ride.id}`);
+
+  //     // 7️⃣ Return response immediately
+  //     return {
+  //       ride,
+  //       estimatedTimeMinutes,
+  //       estimatedPrice,
+  //       message: 'Ride created successfully and queued 🚀',
+  //     };
+  //   } catch (error) {
+  //     this.logger.error(
+  //       '❌ Error creating ride',
+  //       error instanceof Error ? error.stack : String(error),
+  //     );
+  //     throw error;
+  //   }
+  // }
+
+  // // 📏 Distance formula (Haversine)
+  // private calculateDistance(
+  //   lat1: number,
+  //   lng1: number,
+  //   lat2: number,
+  //   lng2: number,
+  // ) {
+  //   const R = 6371; // Earth radius in km
+
+  //   const dLat = this.toRad(lat2 - lat1);
+  //   const dLng = this.toRad(lng2 - lng1);
+
+  //   const a =
+  //     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+  //     Math.cos(this.toRad(lat1)) *
+  //       Math.cos(this.toRad(lat2)) *
+  //       Math.sin(dLng / 2) *
+  //       Math.sin(dLng / 2);
+
+  //   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  //   return R * c;
+  // }
+
+  // private toRad(value: number) {
+  //   return (value * Math.PI) / 180;
+  // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

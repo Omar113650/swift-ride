@@ -4,6 +4,6 @@ import { GeocodingService } from './Geocoding .service';
 
 @Module({
   providers: [GeocodingService],
-  exports: [GeocodingService], // مهم جدًا
+  exports: [GeocodingService], 
 })
 export class GeocodingModule {}

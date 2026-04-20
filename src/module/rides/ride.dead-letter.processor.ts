@@ -7,18 +7,37 @@ export class RideDeadLetterConsumer extends WorkerHost {
   private readonly logger = new Logger(RideDeadLetterConsumer.name);
 
   async process(job: Job<any>) {
-    this.logger.error(`💀 DEAD LETTER JOB RECEIVED`);
+    this.logger.error(` DEAD LETTER JOB RECEIVED`);
 
     this.logger.error({
       job: job.name,
       data: job.data,
+      failedReason: job.failedReason,
+      attempts: job.attemptsMade,
+      stack: job.stacktrace,
     });
 
-    // 💡 هنا تعمل:
-    // - save in DB logs
-    // - send Slack alert
-    // - admin dashboard retry
+    //  1) ignore non-retryable errors
+    if (job.failedReason?.includes('Validation')) {
+      this.logger.warn(' Skipping retry بسبب validation error');
+      return { skipped: true };
+    }
 
-    return { handled: true };
+    //  2) retry max 3 مرات
+    if (job.attemptsMade < 3) {
+      this.logger.warn(` Retrying job ${job.name}`);
+      await job.retry();
+      return { retried: true };
+    }
+
+    // save in DB
+    // await this.deadJobService.save(job);
+
+    //  alert admin
+    // await this.alertService.send(job);
+
+    this.logger.error(`🚨 Job permanently failed: ${job.name}`);
+
+    return { failed: true };
   }
 }

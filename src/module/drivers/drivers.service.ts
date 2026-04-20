@@ -12,6 +12,8 @@ import { DriverStatus } from '@prisma/client';
 import { GeocodingService } from '../rides/Geocoding .service';
 import { Client } from '@elastic/elasticsearch';
 import { RedisService } from '../../common/logger/cache/redis.service';
+import { CustomLoggerService } from '../../common/logger/custom-logger.service';
+
 @Injectable()
 export class DriverService {
   private elastic: Client;
@@ -20,7 +22,8 @@ export class DriverService {
     private prisma: PrismaService,
     private geo: GeocodingService,
     @Inject('REDIS') private readonly redis: any,
-    private redisService: RedisService,
+    private readonly redisService: RedisService,
+    private readonly logger: CustomLoggerService,
   ) {
     // Elasticsearch client
     this.elastic = new Client({
@@ -67,6 +70,8 @@ export class DriverService {
       },
     });
 
+
+
     // Index driver in Elasticsearch
     await this.indexDriver(driver);
 
@@ -74,42 +79,74 @@ export class DriverService {
   }
 
   // GET ALL DRIVERS
-  async getDrivers() {
-    const drivers = await this.prisma.driver.findMany();
-
-    if (!drivers.length) {
-      throw new NotFoundException('No drivers found');
-    }
-    return {
-      data: drivers,
-    };
-  }
-
-  // add cache
   // async getDrivers() {
-  //   const cacheKey = 'drivers:all';
-
-  //   const cachedDrivers = await this.redisService.getCache(cacheKey);
-
-  //   if (cachedDrivers) {
-  //     return {
-  //       source: 'cache',
-  //       data: cachedDrivers,
-  //     };
-  //   }
   //   const drivers = await this.prisma.driver.findMany();
 
   //   if (!drivers.length) {
   //     throw new NotFoundException('No drivers found');
   //   }
-
-  //   await this.redisService.setCache(cacheKey, drivers, 300); // 5 min TTL
-
   //   return {
-  //     source: 'db',
   //     data: drivers,
   //   };
   // }
+
+  // add cache
+async getDrivers(req: any) {
+  const cacheKey = 'drivers:all';
+
+  try {
+
+    this.logger.log({
+      message: 'Fetching drivers',
+      correlationId: req.correlationId,
+      context: 'DriverService',
+    });
+
+    const cachedDrivers = await this.redisService.getCache(cacheKey);
+
+    if (cachedDrivers) {
+      this.logger.log({
+        message: 'Drivers fetched from cache',
+        correlationId: req.correlationId,
+        context: 'DriverService',
+      });
+
+      return {
+        source: 'cache',
+        data: cachedDrivers,
+      };
+    }
+
+    const drivers = await this.prisma.driver.findMany();
+
+    if (!drivers.length) {
+      this.logger.warn({
+        message: 'No drivers found',
+        correlationId: req.correlationId,
+        context: 'DriverService',
+      });
+
+      throw new NotFoundException('No drivers found');
+    }
+
+    await this.redisService.setCache(cacheKey, drivers, 300);
+
+    this.logger.log({
+      message: 'Drivers fetched from DB and cached',
+      correlationId: req.correlationId,
+      context: 'DriverService',
+    });
+
+    return {
+      source: 'db',
+      data: drivers,
+    };
+
+  } catch (error ) {
+    throw error;
+  }
+}
+  
 
   // UPDATE DRIVER
   async updateDriver(driverId: string, dto: UpdateDriverDto) {

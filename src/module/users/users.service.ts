@@ -27,6 +27,8 @@ export class UserService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+
+    
     // private logger: CustomLoggerService,
   ) {}
 

@@ -24,6 +24,3 @@ export class LoggingInterceptor implements NestInterceptor {
   }
 }
 
-// const { correlationId, method, url } = req;
-
-// this.logger.log(`[${correlationId}] ${method} ${url}`);

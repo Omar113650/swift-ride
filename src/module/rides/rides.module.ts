@@ -8,7 +8,6 @@ import { PrismaService } from '../../core/prisma/prisma.service';
 import { AuthMiddleware } from '../../core/middleware/auth/auth.middleware';
 import { UsersModule } from '../users/users.module';
 import { DriversModule } from '../drivers/drivers.module';
-import { MapsModule } from './maps/maps.module';
 import { AppGateway } from '../../gateways/chat.gateway';
 import { SocketService } from '../../core/socket/socket.service';
 import { RideTrackingService } from './ride-tracking.service';
@@ -18,12 +17,13 @@ import { BullModule } from '@nestjs/bullmq';
 import{RideProcessor} from './ride.processor'
 import { RedisModule } from '../../core/redis/redis.module';
 import { RideConsumer } from '../../common/logger/cache/ride.consumer';
+import { RoutingService } from './routing.service';
+
 @Module({
   imports: [
     GeocodingModule,
     UsersModule,
     DriversModule,
-    MapsModule,
     RedisModule,
 
 
@@ -53,61 +53,87 @@ import { RideConsumer } from '../../common/logger/cache/ride.consumer';
 
 
 
-// Retry mechanism
-// ✔ Dead Letter Queue (failed handling)
-// ✔ Proper BullMQ config
-// ✔ Worker safe error handling
-// ✔ Queue add options
+// // Retry mechanism
+// // ✔ Dead Letter Queue (failed handling)
+// // ✔ Proper BullMQ config
+// // ✔ Worker safe error handling
+// // ✔ Queue add options
 
 
 
-BullModule.registerQueue({
-  name: 'ride',
-  connection: {
-    host: 'redis-19539.c16.us-east-1-2.ec2.cloud.redislabs.com',
-    port: 19539,
-    username: 'default',
-    password: 'JTH64LWaQ8Hr1bBsc9s8G1FJUbx61jXq',
-  },
+// BullModule.registerQueue({
+//   name: 'ride',
+//   connection: {
+//     host: 'redis-19539.c16.us-east-1-2.ec2.cloud.redislabs.com',
+//     port: 19539,
+//     username: 'default',
+//     password: 'JTH64LWaQ8Hr1bBsc9s8G1FJUbx61jXq',
+//   },
 
-  defaultJobOptions: {
-    attempts: 5,
-    backoff: {
-      type: 'exponential',
-      delay: 2000,
+//   defaultJobOptions: {
+//     attempts: 5,
+//     backoff: {
+//       type: 'exponential',
+//       delay: 2000,
+//     },
+//     removeOnComplete: true,
+//     removeOnFail: false,
+//   },
+// }),
+
+// // 💀 لازم تضيف دي
+// BullModule.registerQueue({
+//   name: 'ride-dead-letter',
+//   connection: {
+//     host: 'redis-19539.c16.us-east-1-2.ec2.cloud.redislabs.com',
+//     port: 19539,
+//     username: 'default',
+//     password: 'JTH64LWaQ8Hr1bBsc9s8G1FJUbx61jXq',
+//   },
+// }),
+
+
+
+
+
+
+
+
+
+
+
+
+    BullModule.forRoot({
+      connection: {
+        host: 'redis-19539.c16.us-east-1-2.ec2.cloud.redislabs.com',
+        port: 19539,
+        username: 'default',
+          password:"JTH64LWaQ8Hr1bBsc9s8G1FJUbx61jXq",
+      },
+    }),
+BullModule.registerQueue(
+  {
+    name: 'ride',
+    defaultJobOptions: {
+      attempts: 5,
+      backoff: {
+        type: 'exponential',
+        delay: 2000,
+      },
+      removeOnComplete: true,
+      removeOnFail: false,
     },
-    removeOnComplete: true,
-    removeOnFail: false,
   },
-}),
-
-// 💀 لازم تضيف دي
-BullModule.registerQueue({
-  name: 'ride-dead-letter',
-  connection: {
-    host: 'redis-19539.c16.us-east-1-2.ec2.cloud.redislabs.com',
-    port: 19539,
-    username: 'default',
-    password: 'JTH64LWaQ8Hr1bBsc9s8G1FJUbx61jXq',
+  {
+    name: 'ride-dead-letter',
   },
-}),
-
-
-
-
-
-
-
-
-
-
-
-
+),
 
 
 
 
   ],
+
   controllers: [RideController],
   providers: [
     RideService,
@@ -116,16 +142,19 @@ BullModule.registerQueue({
     AppGateway,
     RideTrackingService,
     RideProcessor,
-    RideConsumer
+    RideConsumer,
+    RoutingService
+    
   ],
-  exports: [RideService],
+  exports: [RideService,RideTrackingService],
+  
 })
-// export class RideModule {}
-export class RideModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes(RideController);
-  }
-}
+export class RideModule {}
+// export class RideModule implements NestModule {
+//   configure(consumer: MiddlewareConsumer) {
+//     consumer.apply(AuthMiddleware).forRoutes(RideController);
+//   }
+// }
 
 
 

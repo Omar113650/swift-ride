@@ -2,13 +2,6 @@ import { Module } from '@nestjs/common';
 import { CustomLoggerService } from './custom-logger.service';
 import * as winston from 'winston';
 import { WinstonModule } from 'nest-winston';
-// @Module({
-//   providers: [CustomLoggerService],
-//   exports: [CustomLoggerService],
-// })
-// export class LoggerModule {}
-
-
 
 
 
@@ -35,16 +28,8 @@ import { WinstonModule } from 'nest-winston';
       ],
     }),
   ],
+     providers: [CustomLoggerService],
+  exports: [CustomLoggerService],
 })
 export class LoggerModule {}
 
-
-
-
-
-
-
-
-// nestjs-pino (أسرع وأحدث)
-// أو
-// winston (أشهر وأقدم)

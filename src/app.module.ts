@@ -1,10 +1,8 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './core/prisma/prisma.module';
 import { UsersModule } from './module/users/users.module';
-// import { LoggerModule } from './common/logger/logger.module';
+import { LoggerModule } from './common/logger/logger.module';
 import { VehicleModule } from './module/Vehicle/vehicle.module';
 import { DriversModule } from './module/drivers/drivers.module';
 import { RideModule } from './module/rides/rides.module';
@@ -38,7 +36,7 @@ import { HealthModule } from './module/health/health.module';
 
     PrismaModule,
     UsersModule,
-    // LoggerModule,
+    LoggerModule,
     VehicleModule,
     DriversModule,
     RideModule,
@@ -48,12 +46,12 @@ import { HealthModule } from './module/health/health.module';
     SocketModule,
     // AuthMiddleware,
     HealthModule
+
   ],
 
-  controllers: [AppController],
+  controllers: [],
   providers: [
-    AppService,
-    // CronService
+    CronService,
     AppGateway,
     CronService,
     {
@@ -62,9 +60,17 @@ import { HealthModule } from './module/health/health.module';
     },
   ],
 })
-export class AppModule {}
+// export class AppModule {}
 
 
+
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(CorrelationIdMiddleware)
+      .forRoutes('*'); 
+  }
+}
 
 
 
