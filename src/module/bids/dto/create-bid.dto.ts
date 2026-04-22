@@ -7,19 +7,16 @@ export class CreateRideBidDto {
   @IsUUID()
   rideId: string;
 
-  // ❌ هنشيله من الـ body
-  // driverId هيجي من auth (req.user.id)
-
   @ApiProperty({ example: 70 })
   @Type(() => Number)
   @IsNumber()
-  @Min(1) // أقل سعر
+  @Min(1)
   price: number;
 
   @ApiProperty({ example: 5, description: 'ETA in minutes' })
   @Type(() => Number)
   @IsNumber()
   @Min(1)
-  @Max(60) // max ساعة
+  @Max(60) // ساعة
   arrivalTime: number;
 }

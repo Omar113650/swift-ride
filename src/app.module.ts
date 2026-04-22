@@ -8,17 +8,18 @@ import { DriversModule } from './module/drivers/drivers.module';
 import { RideModule } from './module/rides/rides.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggingInterceptor } from './common/logger/logging.interceptor';
-// import { MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { CorrelationIdMiddleware } from './common/logger/correlation-id.middleware';
 import { MiddlewareConsumer } from '@nestjs/common';
-import { AuthMiddleware } from './core/middleware/auth/auth.middleware';
+// import { AuthMiddleware } from './core/middleware/auth/auth.middleware';
 import { BidsModule } from './module/bids/bids.module';
-import{RedisModule} from './core/redis/redis.module'
+import { RedisModule } from './core/redis/redis.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import{CronService} from './core/cron/cron.service'
-import{AppGateway} from './gateways/chat.gateway'
-import{SocketModule} from './core/socket/socket.module'
+import { CronService } from './core/cron/cron.service';
+import { AppGateway } from './core/gateways/chat.gateway';
+import { SocketModule } from './core/socket/socket.module';
 import { HealthModule } from './module/health/health.module';
+import { RatingModule } from './module/Rating/rating.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -29,9 +30,15 @@ import { HealthModule } from './module/health/health.module';
       envFilePath:
         process.env.NODE_ENV !== 'PRODUCTION' ? '.env' : '.env.production',
       // load: [databaseConfig, jwtConfig],
+    }),
 
-       
-        
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 10,
+        },
+      ],
     }),
 
     PrismaModule,
@@ -40,13 +47,12 @@ import { HealthModule } from './module/health/health.module';
     VehicleModule,
     DriversModule,
     RideModule,
-  
     BidsModule,
     RedisModule,
     SocketModule,
     // AuthMiddleware,
-    HealthModule
-
+    RatingModule,
+    HealthModule,
   ],
 
   controllers: [],
@@ -61,86 +67,8 @@ import { HealthModule } from './module/health/health.module';
   ],
 })
 // export class AppModule {}
-
-
-
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(CorrelationIdMiddleware)
-      .forRoutes('*'); 
+    consumer.apply(CorrelationIdMiddleware).forRoutes('*');
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ===============================================================module to senior developer ====================================
-
-// import { Module, OnModuleInit, Logger } from '@nestjs/common';
-// import { ConfigModule, ConfigService } from '@nestjs/config';
-// import { BullModule } from '@nestjs/bullmq';
-// import { BullBoardModule } from '@bull-board/nestjs';
-// import { ExpressAdapter } from '@bull-board/express';
-// import { DatabaseModule } from './database/database.module';
-// import { AppElasticsearchModule } from './elasticsearch/elasticsearch.module';
-// import { QueueModule } from './queue/queue.module';
-// import { SyncModule } from './sync/sync.module';
-// import { ProductsModule } from './products/products.module';
-// import { SearchModule } from './search/search.module';
-// import { SyncService } from './sync/sync.service';
-// import { QueueProducer } from './queue/queue.producer';
-
-// @Module({
-//   imports: [
-//     ConfigModule.forRoot({ isGlobal: true }),
-//     BullModule.forRootAsync({
-//       imports: [ConfigModule],
-//       useFactory: (config: ConfigService) => ({
-//         connection: {
-//           host: config.get('REDIS_HOST', 'localhost'),
-//           port: config.get<number>('REDIS_PORT', 6379),
-//         },
-//       }),
-//       inject: [ConfigService],
-//     }),
-//     BullBoardModule.forRoot({
-//       route: '/queues',
-//       adapter: ExpressAdapter,
-//     }),
-//     DatabaseModule,
-//     AppElasticsearchModule,
-//     QueueModule,
-//     SyncModule,
-//     ProductsModule,
-//     SearchModule,
-//   ],
-// })
-// export class AppModule implements OnModuleInit {
-//   private readonly logger = new Logger(AppModule.name);
-
-//   constructor(
-//     private readonly syncService: SyncService,
-//     private readonly queueProducer: QueueProducer,
-//   ) {}
-
-//   async onModuleInit() {
-//     try {
-//       await this.syncService.ensureIndex();
-//       await this.queueProducer.enqueueReindexAll();
-//     } catch (err) {
-//       this.logger.error('Failed to ensure ES index', err);
-//     }
-//   }
-// }

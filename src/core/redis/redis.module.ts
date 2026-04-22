@@ -1,49 +1,8 @@
-// import { Global, Module } from '@nestjs/common';
-// import { createClient } from 'redis';
-
-// @Global()
-// @Module({
-//   providers: [
-//     {
-//       provide: 'REDIS',
-//       useFactory: async () => {
-//         const client = createClient({
-//           username: 'default',
-//           password: 'SUXGVCHEhVfz2WdBMJ5ukPeJGK6PXdHz',
-//           socket: {
-//             host: 'redis-16295.c9.us-east-1-4.ec2.cloud.redislabs.com',
-//             port: 16295,
-//           },
-//         });
-
-//         client.on('error', (err) => console.log('Redis Error:', err));
-
-//         await client.connect();
-//         return client;
-//       },
-//     },
-//   ],
-//   exports: ['REDIS'],
-// })
-// export class RedisModule {}
-
-
-
-
-
-
-
-
-
-// انا عملت ب طريقيتن 
-
-
 // in docker 
 
 import { Global, Module } from '@nestjs/common';
 import { createClient } from 'redis';
 import{RedisService} from '../../common/logger/cache/redis.service'
-
 
 
 @Global()
@@ -62,12 +21,12 @@ import{RedisService} from '../../common/logger/cache/redis.service'
         });
 
         client.on('error', (err) =>
-          console.log('❌ Redis Error:', err),
+          console.log(' Redis Error:', err),
         );
 
         await client.connect();
 
-        console.log('✅ Redis Connected');
+        console.log(' Redis Connected');
 
         return client;
       },
@@ -80,7 +39,6 @@ import{RedisService} from '../../common/logger/cache/redis.service'
 export class RedisModule {}
 
 //  to use
-
 // import { Inject, Injectable } from '@nestjs/common';
 // import { RedisClientType } from 'redis';
 
@@ -89,7 +47,7 @@ export class RedisModule {}
 //   constructor(@Inject('REDIS') private readonly redis: RedisClientType) {}
 
 //   async test() {
-//     await this.redis.set('test', 'hello redis 🚀');
+//     await this.redis.set('test', 'redis');
 //     return await this.redis.get('test');
 //   }
 // }

@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+<head>
+  <title>Rider Dashboard</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b1220;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    #status {
+      text-align: center;
+      color: #22c55e;
+      margin-bottom: 20px;
+    }
+
+    #bids {
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .bid-card {
+      background: #1e293b;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      border-left: 4px solid #fbbf24;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #fbbf24;
+    }
+
+    .info {
+      margin: 5px 0;
+      color: #cbd5e1;
+    }
+
+    .price {
+      color: #22c55e;
+      font-weight: bold;
+    }
+
+    .btns {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .accept {
+      background: #22c55e;
+      color: white;
+    }
+
+    .reject {
+      background: #ef4444;
+      color: white;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>🧑‍💻 Rider Dashboard (Bids)</h2>
+<p id="status">Connecting...</p>
+
+<div id="bids"></div>
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+<script>
+  const socket = io('http://localhost:3000', {
+    query: {
+      userId: 'rider-1',
+      role: 'RIDER',
+    },
+    transports: ['websocket'],
+  });
+
+  const status = document.getElementById('status');
+  const bidsContainer = document.getElementById('bids');
+
+  socket.on('connect', () => {
+    status.innerText = '🟢 Connected as Rider';
+  });
+
+  socket.on('disconnect', () => {
+    status.innerText = '🔴 Disconnected';
+  });
+
+socket.on('new_bid', (data) => {
+  console.log('🚗 New Bid:', data);
+
+  const card = document.createElement('div');
+  card.className = 'bid-card';
+
+  card.innerHTML = `
+    <div class="title">🚗 New Driver Offer</div>
+
+    <div class="info">🆔 Ride: ${data.rideId}</div>
+    <div class="info">👨‍✈️ Driver: ${data.driverId}</div>
+    <div class="info price">💰 Price: ${data.price} EGP</div>
+    <div class="info">⏱ Arrival: ${data.arrivalTime} min</div>
+
+    <div class="btns">
+      <button class="accept" onclick="acceptBid('${data.id}')">Accept</button>
+      <button class="reject" onclick="rejectBid('${data.id}')">Reject</button>
+    </div>
+  `;
+
+  bidsContainer.prepend(card);
+});
+</script>
+
+</body>
+</html>

@@ -1,59 +1,183 @@
 <!doctype html>
 <html>
-  <head>
-    <title>Driver Notifications</title>
-  </head>
-  <body>
-    <h2>🚗 Driver App</h2>
+<head>
+  <title>Driver Dashboard</title>
 
-    <p id="status">Connecting...</p>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b1220;
+      margin: 0;
+      padding: 20px;
+      color: #fff;
+    }
 
-    <div id="notifications"></div>
+    h2 {
+      text-align: center;
+      margin-bottom: 5px;
+    }
 
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    #status {
+      text-align: center;
+      color: #22c55e;
+      margin-bottom: 20px;
+    }
 
-    <script>
-      const socket = io('http://localhost:3000', {
-        query: {
-          userId: '2f9c0197-138c-4048-8900-dd1f7f7b83ba',
-          role: 'DRIVER',
-        },
-        transports: ['websocket'], // 🔥 مهم لتثبيت الاتصال
-      });
+    #notifications {
+      max-width: 650px;
+      margin: auto;
+    }
 
-      const status = document.getElementById('status');
-      const notifications = document.getElementById('notifications');
+    .ride-card {
+      background: #1e293b;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 15px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+      border-left: 4px solid #3b82f6;
+      animation: fadeIn 0.25s ease-in;
+    }
 
-      socket.on('connect', () => {
-        status.innerText = '✅ Connected as Driver';
-        console.log('Connected:', socket.id);
-      });
+    .title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #60a5fa;
+    }
 
-      socket.on('disconnect', () => {
-        status.innerText = '❌ Disconnected';
-        console.log('Disconnected');
-      });
+    .info {
+      margin: 6px 0;
+      color: #cbd5e1;
+      font-size: 14px;
+    }
 
-      // 🚨 Receive ride request
-      socket.on('new_ride', (data) => {
-        console.log('🔥 New Ride:', data);
+    .price {
+      color: #fbbf24;
+      font-weight: bold;
+    }
 
-        const div = document.createElement('div');
-        div.style.border = '1px solid #ccc';
-        div.style.padding = '10px';
-        div.style.margin = '10px 0';
-        div.style.background = '#f9f9f9';
+    .time {
+      color: #34d399;
+      font-weight: bold;
+    }
 
-        div.innerHTML = `
-        🚗 <b>New Ride Request</b><br/>
-        📍 Pickup: ${data.pickup.address}<br/>
-        🎯 Destination: ${data.destination.address}<br/>
-        💰 Price: ${data.estimatedPrice}<br/>
-        ⏱ Time: ${data.estimatedTimeMinutes} min
+    .btns {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .accept {
+      background: #22c55e;
+      color: white;
+    }
+
+    .reject {
+      background: #ef4444;
+      color: white;
+    }
+
+    .accept:hover {
+      background: #16a34a;
+    }
+
+    .reject:hover {
+      background: #dc2626;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>🚗 Driver Dashboard</h2>
+  <p id="status">Connecting...</p>
+
+  <div id="notifications"></div>
+
+  <audio id="notifSound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+  <script>
+    const socket = io('http://localhost:3000', {
+      query: {
+        userId: 'driver-1',
+        role: 'DRIVER',
+      },
+      transports: ['websocket'],
+    });
+
+    const status = document.getElementById('status');
+    const notifications = document.getElementById('notifications');
+    const sound = document.getElementById('notifSound');
+
+    socket.on('connect', () => {
+      status.innerText = '🟢 Connected as Driver';
+    });
+
+    socket.on('disconnect', () => {
+      status.innerText = '🔴 Disconnected';
+    });
+
+    // 🚨 NEW RIDE
+    socket.on('new_ride', (data) => {
+      console.log('🚗 New Ride:', data);
+
+      sound.play().catch(() => {});
+
+      const card = document.createElement('div');
+      card.className = 'ride-card';
+
+      card.innerHTML = `
+        <div class="title">🚨 New Ride Request</div>
+
+        <div class="info">📍 Pickup: ${data.pickup}</div>
+        <div class="info">🎯 Destination: ${data.destination}</div>
+        <div class="info price">💰 Price: ${data.estimatedPrice ?? 'N/A'}</div>
+        <div class="info time">⏱ Time: ${data.estimatedTimeMinutes ?? 'N/A'} min</div>
+
+        <div class="btns">
+          <button class="accept" onclick="acceptRide('${data.rideId}')">Accept</button>
+          <button class="reject" onclick="rejectRide('${data.rideId}')">Reject</button>
+        </div>
       `;
 
-        notifications.prepend(div);
-      });
-    </script>
-  </body>
+      notifications.prepend(card);
+    });
+
+    function acceptRide(rideId) {
+      socket.emit('accept_ride', { rideId });
+      alert('🚗 Ride Accepted');
+    }
+
+    function rejectRide(rideId) {
+      socket.emit('reject_ride', { rideId });
+      alert('❌ Ride Rejected');
+    }
+  </script>
+
+</body>
 </html>
+
+
+
+
+
+
+
+<!-- كده عملنا الملف اللي يستخدم ل السوكت  -->

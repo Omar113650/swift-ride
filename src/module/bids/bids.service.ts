@@ -6,74 +6,149 @@ import {
 import { PrismaService } from '../../core/prisma/prisma.service';
 import { CreateRideBidDto } from './dto/create-bid.dto';
 import { UpdateRideBidDto } from './dto/update-bid.dto';
-// import{SocketService} from '../../core/socket/socket.service'
+import{SocketService} from '../../core/socket/socket.service'
 
 @Injectable()
 export class RideBidService {
   constructor(
     private readonly prisma: PrismaService,
-    //  private socketService: SocketService,
-    // private readonly socketService: SocketService, // real-time notifications
+     private socketService: SocketService,
+  
   ) {}
 
-  //  Driver creates a bid
-  async createBid(createRideBidDto: CreateRideBidDto, driverId: string) {
-    const ride = await this.prisma.ride.findUnique({
-      where: { id: createRideBidDto.rideId },
-    });
+//   //  Driver creates a bid
+//   async createBid(createRideBidDto: CreateRideBidDto, driverId: string) {
+//     const ride = await this.prisma.ride.findUnique({
+//       where: { id: createRideBidDto.rideId },
+//     });
+
+//     const driver = await this.prisma.driver.findUnique({
+//   where: { userId: driverId }, 
+// });
+
+// if (!driver) {
+//   throw new NotFoundException('Driver not found');
+// }
+//     // if (!ride) throw new NotFoundException('Ride not found');
+//     // if (ride.status !== 'BIDDING' && ride.status !== 'PENDING') {
+//     //   throw new BadRequestException('Cannot bid on this ride now');
+
+//     // }
+// const newBid = await this.prisma.rideBid.create({
+//   data: {
+//     ...createRideBidDto,
+//     driverId: driver.id,
+//   },
+// });
+
+//     // 🚀 notify rider in real-time
+//     // this.socketService.emitToUser(ride.riderId, 'driver_bid', newBid);
+
+//     return newBid;
+//   }
 
 
-    
-    const driver = await this.prisma.driver.findUnique({
-  where: { userId: driverId }, // أو id حسب تصميمك
-});
 
-if (!driver) {
-  throw new NotFoundException('Driver not found');
-}
-    if (!ride) throw new NotFoundException('Ride not found');
-    if (ride.status !== 'BIDDING' && ride.status !== 'PENDING') {
-      throw new BadRequestException('Cannot bid on this ride now');
 
-    }
-    const newBid = await this.prisma.rideBid.create({
-      data: {
-        ...createRideBidDto,
-        driverId:driverId,
-      },
-    });
 
-    // 🚀 notify rider in real-time
-    // this.socketService.emitToUser(ride.riderId, 'driver_bid', newBid);
+async createBid(createRideBidDto: CreateRideBidDto, driverId: string) {
+  const ride = await this.prisma.ride.findUnique({
+    where: { id: createRideBidDto.rideId },
+  });
 
-    return newBid;
+  if (!ride) {
+    throw new NotFoundException('Ride not found');
   }
 
+  const driver = await this.prisma.driver.findUnique({
+    where: { userId: driverId },
+  });
+
+  if (!driver) {
+    throw new NotFoundException('Driver not found');
+  }
+
+  // 🚀 optional limit (لو عايز)
+  const bidsCount = await this.prisma.rideBid.count({
+    where: {
+      rideId: ride.id,
+      driverId: driver.id,
+    },
+  });
+
+  // مثال limit (اختياري)
+  // if (bidsCount >= 3) {
+  //   throw new BadRequestException('Max bids reached');
+  // }
+
+  // ✅ create bid (لازم يكون موجود)
+  const newBid = await this.prisma.rideBid.create({
+    data: {
+      ...createRideBidDto,
+      driverId: driver.id,
+    },
+  });
+
+  // 🚀 notify rider
+  this.socketService.emitToUser(
+    ride.riderId,
+    'new_bid',
+    {
+      rideId: ride.id,
+      bidId: newBid.id,
+      driverId: driver.id,
+      price: newBid.price,
+      message: '🚗 New driver bid received',
+    },
+  );
+
+  return newBid;
+}
+
+  
 
   // 2️⃣ Update bid (driver can edit before selection)
+async updateBid(
+  bidId: string,
+  updateDto: UpdateRideBidDto,
+  driverUserId: string, // ده جاي من JWT (sub)
+) {
+  const bid = await this.prisma.rideBid.findUnique({
+    where: { id: bidId },
+  });
 
-  async updateBid(
-    bidId: string,
-    updateDto: UpdateRideBidDto,
-    driverId: string,
-  ) {
-    const bid = await this.prisma.rideBid.findUnique({ where: { id: bidId } });
-    if (!bid) throw new NotFoundException('Bid not found');
-    if (bid.driverId !== driverId)
-      throw new BadRequestException('Cannot update others bid');
-    if (bid.isSelected)
-      throw new BadRequestException('Cannot update selected bid');
-
-    const updatedBid = await this.prisma.rideBid.update({
-      where: { id: bidId },
-      data: updateDto,
-    });
-
-    // 🚀 notify rider about update
-    // this.socketService.emitToUser(bid.rideId, 'driver_bid_updated', updatedBid);
-
-    return updatedBid;
+  if (!bid) {
+    throw new NotFoundException('Bid not found');
   }
+
+  // ✅ هات الـ driver الحقيقي من الـ userId
+  const driver = await this.prisma.driver.findUnique({
+    where: { userId: driverUserId },
+  });
+
+  if (!driver) {
+    throw new NotFoundException('Driver not found');
+  }
+
+  // ✅ قارن بالـ driver.id مش userId
+  if (bid.driverId !== driver.id) {
+    throw new BadRequestException('Cannot update others bid');
+  }
+
+  if (bid.isSelected) {
+    throw new BadRequestException('Cannot update selected bid');
+  }
+
+  const updatedBid = await this.prisma.rideBid.update({
+    where: { id: bidId },
+    data: updateDto,
+  });
+
+  // 🚀 notify rider about update (هنفعلها بعدين)
+  // this.socketService.emitToUser(bid.rideId, 'driver_bid_updated', updatedBid);
+
+  return updatedBid;
+}
 
 
   // 3️⃣ Delete bid (driver before selection)

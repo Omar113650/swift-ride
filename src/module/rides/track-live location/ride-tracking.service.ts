@@ -4,7 +4,10 @@ import { Injectable, Inject, Logger } from '@nestjs/common';
 export class RideTrackingService {
   private readonly logger = new Logger(RideTrackingService.name);
 
-  constructor(@Inject('REDIS') private readonly redis: any) {}
+  constructor(
+    @Inject('REDIS') private readonly redis: any
+
+  ) {}
 
   async updateDriverLocation(data: {
     driverId: string;

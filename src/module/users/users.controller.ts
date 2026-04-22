@@ -18,6 +18,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login-user.dto';
 import type { Response, Request } from 'express';
 import { GoogleAuthGuard } from './Strategy/GoogleAuthGuard';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @ApiTags('authentication')
 @Controller('auth')
@@ -52,7 +53,7 @@ export class UserController {
   async logout(@Res({ passthrough: true }) res: Response) {
     return await this.userService.logout(res);
   }
-
+@UseGuards(ThrottlerGuard)
   @Get('found-user')
   async findUser() {
     return await this.userService.GetProfile();

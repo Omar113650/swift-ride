@@ -16,6 +16,7 @@ import { UpdateDriverDto } from './dto/update-driver.dto';
 import { UpdateDriverLocationDto } from './dto/update-driver-location.dto';
 import { Roles } from '../../core/decorators/roles.decorator';
 import { RolesGuard } from '../../core/guards/roles.guard';
+import { ThrottlerGuard } from '@nestjs/throttler';
 @Controller('drivers')
 export class DriverController {
   constructor(private readonly driverService: DriverService) {}
@@ -53,19 +54,20 @@ export class DriverController {
   ) {
     return this.driverService.updateLocationByAddress(driverId, body.address);
   }
-
+@UseGuards(ThrottlerGuard)
   @Get(':driverId/rides')
   getRides(@Param('driverId', ParseUUIDPipe) driverId: string) {
     return this.driverService.getDriverRides(driverId);
   }
 
+@UseGuards(ThrottlerGuard)
   @Get()
   @UseGuards(RolesGuard)
   @Roles('DRIVER')
   async getDrivers(@Req() req) {
     return this.driverService.getDrivers(req);
   }
-
+@UseGuards(ThrottlerGuard)
   @Get('nearby')
   findNearby(@Query('lat') lat: number, @Query('lng') lng: number) {
     return this.driverService.findNearbyDrivers(+lat, +lng);
@@ -76,10 +78,7 @@ export class DriverController {
     return this.driverService.searchDrivers(query);
   }
 
-  @Get(':driverId/ratings')
-  getRatings(@Param('driverId', ParseUUIDPipe) driverId: string) {
-    return this.driverService.getRatings(driverId);
-  }
+
 
   @Get(':driverId/wallet')
   getWallet(@Param('driverId', ParseUUIDPipe) driverId: string) {

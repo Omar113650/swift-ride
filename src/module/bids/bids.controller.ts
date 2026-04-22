@@ -8,6 +8,7 @@ import {
   Body,
   Req,
   UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { RideBidService } from './bids.service';
 import { CreateRideBidDto } from './dto/create-bid.dto';
@@ -24,7 +25,7 @@ export class RideBidController {
   @UseGuards(RolesGuard)
   @Roles('RIDER', 'DRIVER', 'ADMIN')
   async createBid(@Body() dto: CreateRideBidDto, @Req() req: any) {
-    // console.log('🔥 USER FROM REQUEST:', req.User); // debug مهم
+    console.log('🔥 USER FROM REQUEST:', req.User); // debug مهم
 
     const driverId = req.User?.sub; // ✅ زي ما التوكن عندك
 
@@ -37,15 +38,24 @@ export class RideBidController {
     return this.rideBidService.createBid(dto, driverId);
   }
 
+  @UseGuards(RolesGuard)
   // 2️⃣ Update bid (Driver)
+  @Roles('RIDER', 'DRIVER', 'ADMIN')
+
+  // id= BidId
   @Patch(':id')
   async updateBid(
     @Param('id') bidId: string,
     @Body() dto: UpdateRideBidDto,
     @Req() req: any,
   ) {
-    const driverId = req.user.id;
-    return this.rideBidService.updateBid(bidId, dto, driverId);
+    const driverUserId = req.User?.sub; // ✅ الصح
+
+    if (!driverUserId) {
+      throw new UnauthorizedException('User not found in request');
+    }
+
+    return this.rideBidService.updateBid(bidId, dto, driverUserId);
   }
 
   // 3️⃣ Delete bid (Driver)
