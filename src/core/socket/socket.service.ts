@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AppGateway } from '../gateways/chat.gateway';
+import { AppGateway } from './gateways/chat.gateway';
 
 @Injectable()
 export class SocketService {

@@ -6,7 +6,7 @@ import { CreateRatingDto } from './dto/rate.dto';
 export class RatingService {
   constructor(private prisma: PrismaService) {}
 
-  // ✅ CREATE
+
   async addRate(dto: CreateRatingDto, user: any) {
     const { userId, driverId, score, comment } = dto;
 
@@ -21,7 +21,7 @@ export class RatingService {
     });
   }
 
-  // ✅ GET ALL
+
   async getRatings(query: {
     userId?: string;
     driverId?: string;

@@ -1,12 +1,13 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class RideTrackingService {
   private readonly logger = new Logger(RideTrackingService.name);
 
   constructor(
-    @Inject('REDIS') private readonly redis: any
-
+    @Inject('REDIS') private readonly redis: any,
+    // private readonly jwtService: JwtService,
   ) {}
 
   async updateDriverLocation(data: {

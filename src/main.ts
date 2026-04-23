@@ -10,7 +10,11 @@ import { WinstonModule } from 'nest-winston';
 import * as winston from 'winston';
 import { LoggingInterceptor } from './common/logger/logging.interceptor';
 
+
 async function bootstrap() {
+
+
+  
   const logger = WinstonModule.createLogger({
     transports: [
       new winston.transports.Console({
@@ -92,6 +96,9 @@ async function bootstrap() {
     }),
   );
 
+  
+
+
   //  logger wii be work when to test to project
   // اداره الاخطاء و res  علي مدار البروجيكت
   app.useGlobalFilters(new GlobalExceptionFilter());
@@ -104,6 +111,9 @@ async function bootstrap() {
 
   // user when run elastic search
   logger.log(`Search endpoint: GET http://localhost:${port}/products/search`);
+
+    // app.use(express.static(path.join(__dirname, '..', 'public')))
 }
+
 
 bootstrap();

@@ -9,20 +9,24 @@ export class RidesService {
   ) {}
 
   async getRideRoute(rideId: string) {
-    // 1️⃣ Get ride from DB
     const ride = await this.prisma.ride.findUnique({
       where: { id: rideId },
     });
 
-    // 2️⃣ Safety check
     if (!ride || !ride.route) {
       return [];
     }
 
-    // 3️⃣ Decode polyline
     const points = polyline.decode(ride.route);
 
-    // 4️⃣ Return coordinates
     return points;
   }
 }
+
+
+
+
+
+
+
+// https://cloud.redis.io/#/

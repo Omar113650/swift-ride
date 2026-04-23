@@ -1,10 +1,12 @@
-// in docker 
+// in docker
 
 import { Global, Module } from '@nestjs/common';
 import { createClient } from 'redis';
-import{RedisService} from '../../common/logger/cache/redis.service'
+import { RedisService } from '../../common/logger/cache/redis.service';
+import * as dotenv from 'dotenv';
 
-
+import 'dotenv/config';
+dotenv.config();
 @Global()
 @Module({
   providers: [
@@ -12,17 +14,18 @@ import{RedisService} from '../../common/logger/cache/redis.service'
       provide: 'REDIS',
       useFactory: async () => {
         const client = createClient({
-          username: 'default',
-          password: 'JTH64LWaQ8Hr1bBsc9s8G1FJUbx61jXq',
+          username: process.env.USERNAME_REDIS,
+          password: process.env.PASSWORD_REDIS,
           socket: {
-            host: 'redis-19539.c16.us-east-1-2.ec2.cloud.redislabs.com',
-            port: 19539,
+            host: process.env.HOST_REDIS,
+            // port: Number(process.env.PORT_REDIS!),
+  port: process.env.PORT_REDIS
+  ? parseInt(process.env.PORT_REDIS, 10)
+  : 19539,
           },
         });
 
-        client.on('error', (err) =>
-          console.log(' Redis Error:', err),
-        );
+        client.on('error', (err) => console.log(' Redis Error:', err));
 
         await client.connect();
 
@@ -30,11 +33,10 @@ import{RedisService} from '../../common/logger/cache/redis.service'
 
         return client;
       },
-      
     },
-    RedisService
+    RedisService,
   ],
-  exports: ['REDIS',RedisService],
+  exports: ['REDIS', RedisService],
 })
 export class RedisModule {}
 

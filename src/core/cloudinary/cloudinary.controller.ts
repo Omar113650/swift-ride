@@ -17,7 +17,7 @@ import { CloudinaryService } from './cloudinary.service';
 export class AppController {
   constructor(private readonly cloudinaryService: CloudinaryService) {}
 
-  // ✅ رفع صورة واحدة (مثلاً Logo أو Avatar)
+  
   @Post('image')
   @UseInterceptors(
     FileInterceptor('image', {
@@ -35,7 +35,7 @@ export class AppController {
     return this.cloudinaryService.uploadFile(file, uploadId);
   }
 
-  // ✅ رفع عدة صور
+
   @Post('files')
   @UseInterceptors(
     FilesInterceptor('files', 5, {
@@ -50,7 +50,6 @@ export class AppController {
     return this.cloudinaryService.uploadFiles(files);
   }
 
-  // ✅ حذف صورة
   @Delete(':publicId')
   async deleteFile(@Param('publicId') publicId: string) {
     if (!publicId) {

@@ -7,7 +7,7 @@ import { PrismaService } from '../../core/prisma/prisma.service';
 import { AuthMiddleware } from '../../core/middleware/auth/auth.middleware';
 import { UsersModule } from '../users/users.module';
 import { DriversModule } from '../drivers/drivers.module';
-import { AppGateway } from '../../core/gateways/chat.gateway';
+import { AppGateway } from '../../core/socket/gateways/chat.gateway';
 import { SocketService } from '../../core/socket/socket.service';
 import { RideTrackingService } from './track-live location/ride-tracking.service';
 // import{RidesService} from '../../core/redis/cache'
@@ -19,7 +19,10 @@ import { RideConsumer } from '../../common/logger/cache/ride.consumer';
 import { RoutingService } from './routing Ride/routing.service';
 import { RedisService } from '../../common/logger/cache/redis.service';
 // import { RidesService } from '../../core/redis/rides.service';
+import * as dotenv from 'dotenv';
 
+import 'dotenv/config';
+dotenv.config();
 @Module({
   imports: [
     GeocodingModule,
@@ -81,12 +84,16 @@ import { RedisService } from '../../common/logger/cache/redis.service';
 
     BullModule.forRoot({
       connection: {
-        host: 'redis-19539.c16.us-east-1-2.ec2.cloud.redislabs.com',
-        port: 19539,
-        username: 'default',
-        password: 'JTH64LWaQ8Hr1bBsc9s8G1FJUbx61jXq',
+        host: process.env.HOST_REDIS,
+
+        username: process.env.USERNAME_REDIS,
+        password: process.env.PASSWORD_REDIS,
+        port: process.env.PORT_REDIS
+          ? parseInt(process.env.PORT_REDIS, 10)
+          : 19539,
       },
     }),
+
     BullModule.registerQueue(
       {
         name: 'ride',

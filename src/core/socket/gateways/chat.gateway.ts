@@ -10,7 +10,7 @@ import {
 
 import { Server, Socket } from 'socket.io';
 import { Injectable } from '@nestjs/common';
-import { RideTrackingService } from '../../module/rides/track-live location/ride-tracking.service';
+import { RideTrackingService } from '../../../module/rides/track-live location/ride-tracking.service';
 
 type Role = 'DRIVER' | 'RIDER';
 
@@ -72,14 +72,13 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(client.socketId).emit(event, data);
   }
 
-
   emitToAllDrivers(event: string, data: any) {
-  for (const [, client] of this.clientsMap.entries()) {
-    if (client.role === 'DRIVER') {
-      this.server.to(client.socketId).emit(event, data);
+    for (const [, client] of this.clientsMap.entries()) {
+      if (client.role === 'DRIVER') {
+        this.server.to(client.socketId).emit(event, data);
+      }
     }
   }
-}
   // CHAT
   @SubscribeMessage('send_message')
   handleMessage(

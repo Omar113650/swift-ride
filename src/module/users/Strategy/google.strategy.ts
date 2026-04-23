@@ -1,19 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy, VerifyCallback } from 'passport-google-oauth20';
+import { Strategy, VerifyCallback,StrategyOptions } from 'passport-google-oauth20';
 import { Profile } from 'passport';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   constructor() {
-    super({
-      clientID:
-        '796997064166-3mjj99u8r2koiispch2cl15ur2d37uis.apps.googleusercontent.com',
-      clientSecret: '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',
-      callbackURL: 'http://localhost:3000/api/v1/auth/google/callback',
-      //   الداتا اللي عاوز جوجل تبعتهالك
+ super({
+      clientID: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      callbackURL: process.env.GOOGLE_CALLBACK_URL!,
       scope: ['email', 'profile'],
-    });
+      passReqToCallback: false, // ✅ إضافة هذا السطر
+    } as StrategyOptions);
   }
 
   async validate(

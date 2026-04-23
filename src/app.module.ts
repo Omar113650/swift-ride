@@ -1,5 +1,5 @@
 import { Module, NestModule } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, registerAs } from '@nestjs/config';
 import { PrismaModule } from './core/prisma/prisma.module';
 import { UsersModule } from './module/users/users.module';
 import { LoggerModule } from './common/logger/logger.module';
@@ -15,21 +15,30 @@ import { BidsModule } from './module/bids/bids.module';
 import { RedisModule } from './core/redis/redis.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronService } from './core/cron/cron.service';
-import { AppGateway } from './core/gateways/chat.gateway';
+import { AppGateway } from './core/socket/gateways/chat.gateway';
 import { SocketModule } from './core/socket/socket.module';
 import { HealthModule } from './module/health/health.module';
 import { RatingModule } from './module/Rating/rating.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { DatabaseSync } from 'node:sqlite';
+import { CloudinaryProvider } from './config/cloudinary.config';
+import jwtConfig from './config/jwt.config';
+import databaseConfig from './config/DB.config';
+
+
+
 
 @Module({
   imports: [
     ScheduleModule.forRoot(),
 
+
+
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath:
-        process.env.NODE_ENV !== 'PRODUCTION' ? '.env' : '.env.production',
-      // load: [databaseConfig, jwtConfig],
+      // envFilePath:
+      //   process.env.NODE_ENV !== 'PRODUCTION' ? '.env' : '.env.production',
+      load: [databaseConfig, jwtConfig],
     }),
 
     ThrottlerModule.forRoot({

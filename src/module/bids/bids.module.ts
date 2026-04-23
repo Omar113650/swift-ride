@@ -10,29 +10,40 @@ import { PrismaService } from '../../core/prisma/prisma.service';
 import { JwtModule } from '@nestjs/jwt';
 import { SocketService } from '../../core/socket/socket.service';
 import { SocketModule } from '../../core/socket/socket.module';
-import { AppGateway } from '../../core/gateways/chat.gateway';
+import { AppGateway } from '../../core/socket/gateways/chat.gateway';
+
+// @Module({
+//   imports: [
+//     UsersModule,
+//     DriversModule,
+//     SocketModule,
+//     RideModule,
+//     JwtModule.register({
+//       secret: 'JWT_ACCESS_SECRET',
+//     }),
+//   ],
+//   controllers: [RideBidController],
+//   providers: [
+//     RideBidService,
+//     PrismaService,
+//     RolesGuard,
+//     SocketService,
+//     AppGateway,
+//   ],
+// })
+
+// // export class BidsModule {}
+// export class BidsModule implements NestModule {
+//   configure(consumer: MiddlewareConsumer) {
+//     consumer.apply(AuthMiddleware).forRoutes(RideBidController);
+//   }
+// }
 
 @Module({
-  imports: [
-    UsersModule,
-    DriversModule,
-    SocketModule,
-    RideModule,
-    JwtModule.register({
-      secret: 'JWT_ACCESS_SECRET',
-    }),
-  ],
+  imports: [UsersModule, DriversModule, SocketModule, RideModule],
   controllers: [RideBidController],
-  providers: [
-    RideBidService,
-    PrismaService,
-    RolesGuard,
-    SocketService,
-    AppGateway,
-  ],
+  providers: [RideBidService, PrismaService, RolesGuard],
 })
-
-// export class BidsModule {}
 export class BidsModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(AuthMiddleware).forRoutes(RideBidController);
