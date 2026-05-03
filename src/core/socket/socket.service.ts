@@ -9,13 +9,12 @@ export class SocketService {
   emitToDriver(driverId: string, event: string, data: any) {
     this.gateway.emitToUser(driverId, event, data);
   }
-
+  // SEND TO ALL DRIVER
   emitToAllDrivers(event: string, data: any) {
     this.gateway.emitToAllDrivers(event, data);
   }
 
   // SEND TO USER
-
   emitToUser(userId: string, event: string, data: any) {
     this.gateway.emitToUser(userId, event, data);
   }

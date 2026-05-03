@@ -24,14 +24,12 @@ export class VehicleController {
   // Add a new vehicle for a driver
   @Post('add-vehicle/:driverId')
   @UseInterceptors(FileInterceptor('image'))
-
   @UseGuards(RolesGuard)
   @Roles('DRIVER')
   async addVehicle(
     @Param('driverId') driverId: string,
     @Body() dto: CreateVehicleDto,
     @UploadedFile() image?: Express.Multer.File,
- 
   ) {
     return this.vehicleService.addVehicle(dto, driverId, image);
   }

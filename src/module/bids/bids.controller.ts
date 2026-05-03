@@ -15,7 +15,7 @@ import { CreateRideBidDto } from './dto/create-bid.dto';
 import { UpdateRideBidDto } from './dto/update-bid.dto';
 import { Roles } from '../../core/decorators/roles.decorator';
 import { RolesGuard } from '../../core/guards/roles.guard';
-// import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+
 
 @Controller('bids')
 export class RideBidController {
@@ -25,9 +25,9 @@ export class RideBidController {
   @UseGuards(RolesGuard)
   @Roles('RIDER', 'DRIVER', 'ADMIN')
   async createBid(@Body() dto: CreateRideBidDto, @Req() req: any) {
-    console.log('🔥 USER FROM REQUEST:', req.User); // debug مهم
+    console.log('USER FROM REQUEST:', req.User); // debug مهم
 
-    const driverId = req.User?.sub; // ✅ زي ما التوكن عندك
+    const driverId = req.User?.sub; 
 
     if (!driverId) {
       return {
@@ -39,7 +39,7 @@ export class RideBidController {
   }
 
   @UseGuards(RolesGuard)
-  // 2️⃣ Update bid (Driver)
+ 
   @Roles('RIDER', 'DRIVER', 'ADMIN')
 
   // id= BidId
@@ -49,7 +49,7 @@ export class RideBidController {
     @Body() dto: UpdateRideBidDto,
     @Req() req: any,
   ) {
-    const driverUserId = req.User?.sub; // ✅ الصح
+    const driverUserId = req.User?.sub; 
 
     if (!driverUserId) {
       throw new UnauthorizedException('User not found in request');
@@ -58,20 +58,19 @@ export class RideBidController {
     return this.rideBidService.updateBid(bidId, dto, driverUserId);
   }
 
-  // 3️⃣ Delete bid (Driver)
+ 
   @Delete(':id')
   async deleteBid(@Param('id') bidId: string, @Req() req: any) {
     const driverId = req.user.id;
     return this.rideBidService.deleteBid(bidId, driverId);
   }
 
-  // 4️⃣ Get all bids for a ride (Rider)
+
   @Get('ride/:rideId')
   async getBidsForRide(@Param('rideId') rideId: string) {
     return this.rideBidService.getBidsForRide(rideId);
   }
 
-  // 5️⃣ Select bid (Rider)
   @Patch('ride/:rideId/select/:bidId')
   async selectBid(
     @Param('rideId') rideId: string,

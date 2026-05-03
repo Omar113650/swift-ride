@@ -110,4 +110,20 @@ export class RideController {
   async getTotalRides() {
     return this.rideService.getTotalRides();
   }
+
+  //   @Patch('status')
+  // async updateRideStatus(@Body() dto: UpdateRideStatusDto) {
+  //   return this.rideService.updateRideStatus(dto);
+  // }
+
+
+  // @Get('top')
+  // async getTopRiders() {
+  //   const riders = await this.rideService.getTopRiders();
+  //   return {
+  //     message: 'Top riders fetched successfully',
+  //     data: riders,
+  //   };
+  // }
 }
+

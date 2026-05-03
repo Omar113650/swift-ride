@@ -18,10 +18,9 @@ dotenv.config();
           password: process.env.PASSWORD_REDIS,
           socket: {
             host: process.env.HOST_REDIS,
-            // port: Number(process.env.PORT_REDIS!),
-  port: process.env.PORT_REDIS
-  ? parseInt(process.env.PORT_REDIS, 10)
-  : 19539,
+            port: process.env.PORT_REDIS
+              ? parseInt(process.env.PORT_REDIS, 10)
+              : 19539,
           },
         });
 
@@ -41,11 +40,6 @@ dotenv.config();
 export class RedisModule {}
 
 //  to use
-// import { Inject, Injectable } from '@nestjs/common';
-// import { RedisClientType } from 'redis';
-
-// @Injectable()
-// export class BidsService {
 //   constructor(@Inject('REDIS') private readonly redis: RedisClientType) {}
 
 //   async test() {

@@ -8,13 +8,12 @@ import { PrismaService } from '../../core/prisma/prisma.service';
 import { GeocodingService } from './Geocoding/Geocoding.service';
 import { CreateRideDto } from './dto/create-ride.dto';
 import { SocketService } from '../../core/socket/socket.service';
-
 import { PricingFactory } from './pricing/pricing.factory';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { RoutingService } from './routing Ride/routing.service';
-import { NotFoundError } from 'rxjs';
-import { count } from 'console';
+import { RideStatus } from '@prisma/client';
+
 @Injectable()
 export class RideService {
   private readonly logger = new Logger(RideService.name);
@@ -30,24 +29,24 @@ export class RideService {
     // private readonly Rides: RideService,
   ) {}
 
-  // routing and use polying
+  // routing and use polying to display accurate data
   async createRide(riderId: string, dto: CreateRideDto, calculatePrice = true) {
     this.logger.log(`🚗 Creating ride for rider: ${riderId}`);
 
-    // 0️⃣ Idempotency
+    //  Idempotency
     if (dto.rideId) {
       const existing = await this.prisma.ride.findUnique({
         where: { id: dto.rideId },
       });
 
-      if (existing) return { ride: existing, message: 'Already exists ♻️' };
+      if (existing) return { ride: existing, message: 'Already exists ' };
     }
 
-    // 1️⃣ Coordinates
+    //  Coordinates
     const pickup = await this.geo.getCoordinates(dto.pickupAddress);
     const destination = await this.geo.getCoordinates(dto.destinationAddress);
 
-    // 2️⃣ Route (OSRM)
+    // Route (OSRM)
     const route = await this.routingService.getRoute(
       { lat: pickup.lat, lng: pickup.lng },
       { lat: destination.lat, lng: destination.lng },
@@ -57,14 +56,14 @@ export class RideService {
     const time = Math.ceil(route.duration);
     const polyline = route.polyline;
 
-    // 3️⃣ Pricing
+    //  Pricing
     const price = calculatePrice
       ? PricingFactory.create(
           distance > 100 ? 'intercity' : 'standard',
         ).calculate(distance, time)
       : null;
 
-    // 4️⃣ Save
+    //  Save
     const ride = await this.prisma.ride.create({
       data: {
         id: dto.rideId,
@@ -82,7 +81,7 @@ export class RideService {
       },
     });
 
-    // 5️⃣ Queue
+    //  Queue
     await this.rideQueue.add('ride-created', {
       rideId: ride.id,
       riderId,
@@ -94,22 +93,21 @@ export class RideService {
       polyline,
     });
 
-  // 🚀 5️⃣ Notify ALL DRIVERS
-  this.socketService.emitToAllDrivers('new_ride', {
-    rideId: ride.id,
-    pickup: dto.pickupAddress,
-    destination: dto.destinationAddress,
-    estimatedPrice: price,
-    estimatedTimeMinutes: time,
-  });
-
+    //  Notify ALL DRIVERS
+    this.socketService.emitToAllDrivers('new_ride', {
+      rideId: ride.id,
+      pickup: dto.pickupAddress,
+      destination: dto.destinationAddress,
+      estimatedPrice: price,
+      estimatedTimeMinutes: time,
+    });
 
     return {
       ride,
       estimatedTimeMinutes: time,
       estimatedPrice: price,
       polyline,
-      message: 'Ride created 🚀',
+      message: 'Ride created ',
     };
   }
 
@@ -255,32 +253,32 @@ export class RideService {
   // }
 
   // 📏 Distance formula (Haversine)
-  private calculateDistance(
-    lat1: number,
-    lng1: number,
-    lat2: number,
-    lng2: number,
-  ) {
-    const R = 6371; // Earth radius in km
+  // private calculateDistance(
+  //   lat1: number,
+  //   lng1: number,
+  //   lat2: number,
+  //   lng2: number,
+  // ) {
+  //   const R = 6371; // Earth radius in km
 
-    const dLat = this.toRad(lat2 - lat1);
-    const dLng = this.toRad(lng2 - lng1);
+  //   const dLat = this.toRad(lat2 - lat1);
+  //   const dLng = this.toRad(lng2 - lng1);
 
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(this.toRad(lat1)) *
-        Math.cos(this.toRad(lat2)) *
-        Math.sin(dLng / 2) *
-        Math.sin(dLng / 2);
+  //   const a =
+  //     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+  //     Math.cos(this.toRad(lat1)) *
+  //       Math.cos(this.toRad(lat2)) *
+  //       Math.sin(dLng / 2) *
+  //       Math.sin(dLng / 2);
 
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  //   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-    return R * c;
-  }
+  //   return R * c;
+  // }
 
-  private toRad(value: number) {
-    return (value * Math.PI) / 180;
-  }
+  // private toRad(value: number) {
+  //   return (value * Math.PI) / 180;
+  // }
 
   async assignDriver(rideId: string, driverId: string) {
     const ride = await this.prisma.ride.findUnique({
@@ -418,4 +416,75 @@ export class RideService {
   async getTotalRides() {
     return this.prisma.ride.count();
   }
+
+  // async StatusRide(dto: CreateRideDto) {
+  //   const ride = await this.prisma.ride.findUnique({
+  //     where: { id: dto.rideId },
+  //   });
+  //   if (!ride) {
+  //     return 'not exist any ride ';
+  //   }
+
+  //   const stRide = this.prisma.ride.findUnique({
+  //       where: { status: dto.status },
+  //       gropby:{status}
+  //   });
+
+  //   }
+  // }
+
+  // const allowedTransitions = {
+  //   pending: ['accepted', 'cancelled'],
+  //   accepted: ['in_progress', 'cancelled'],
+  //   in_progress: ['completed'],
+  //   completed: [],
+  //   cancelled: [],
+  // };
+
+  // if (!allowedTransitions[ride.status].includes(dto.status)) {
+  //   throw new Error('Invalid status transition');
+  // }
+
+  async updateRideStatus(dto: CreateRideDto) {
+    const ride = await this.prisma.ride.findUnique({
+      where: { id: dto.rideId },
+    });
+
+    if (!ride) {
+      throw new Error('Ride not found');
+    }
+
+    const updatedRide = await this.prisma.ride.update({
+      where: { id: dto.rideId },
+      data: {
+        status: dto.status,
+      },
+    });
+
+    return updatedRide;
+  }
+
+
+
+async getTopRiders() {
+  const riders = await this.prisma.user.findMany({
+    where: {
+      role: 'RIDER',
+    },
+    include: {
+      _count: {
+        select: {
+          rides: true,
+        },
+      },
+    },
+    orderBy: {
+      rides: {
+        _count: 'desc',
+      },
+    },
+  });
+
+  return riders;
+}
 }

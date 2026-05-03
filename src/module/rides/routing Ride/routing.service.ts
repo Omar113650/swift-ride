@@ -7,7 +7,7 @@ import axios from 'axios';
 
 @Injectable()
 export class RoutingService {
-  private readonly baseUrl = 'http://router.project-osrm.org/route/v1/driving';
+  private readonly baseUrl = 'https://router.project-osrm.org/route/v1/driving';
 
   async getRoute(
     pickup: { lat: number; lng: number },

@@ -1,26 +1,22 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../core/prisma/prisma.service';
 import { CreateRatingDto } from './dto/rate.dto';
+import { PrismaApiFeatures } from '../../shared/utils/api-features';
 
 @Injectable()
 export class RatingService {
   constructor(private prisma: PrismaService) {}
 
-
   async addRate(dto: CreateRatingDto, user: any) {
-    const { userId, driverId, score, comment } = dto;
-
-    return await this.prisma.rating.create({
+    const rate = await this.prisma.rating.create({
       data: {
-        userId,
-        driverId,
+        ...dto,
         raterId: user.id,
-        score,
-        comment,
       },
     });
-  }
 
+    return rate;
+  }
 
   async getRatings(query: {
     userId?: string;
@@ -43,7 +39,6 @@ export class RatingService {
     });
   }
 
-  // ✅ GET ONE
   async getRatingById(id: string) {
     const rating = await this.prisma.rating.findUnique({
       where: { id },
@@ -56,7 +51,6 @@ export class RatingService {
     return rating;
   }
 
-  // ✅ UPDATE
   async updateRating(id: string, dto: Partial<CreateRatingDto>) {
     return await this.prisma.rating.update({
       where: { id },
@@ -67,10 +61,20 @@ export class RatingService {
     });
   }
 
-  // ✅ DELETE
   async deleteRating(id: string) {
     return await this.prisma.rating.delete({
       where: { id },
     });
   }
+
+async getTopRatedDrivers(query: any) {
+  const result = await new PrismaApiFeatures(query)
+    .filter()
+    .sort()
+    .paginate()
+    .execute(this.prisma.rating);
+
+  return result;
+}
+
 }

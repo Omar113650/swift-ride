@@ -15,7 +15,6 @@ export class PrismaApiFeatures {
     Object.keys(queryObj).forEach((key) => {
       const value = queryObj[key];
 
-      // لو فيه operators
       if (typeof value === 'object') {
         this.where[key] = {};
 
@@ -39,11 +38,16 @@ export class PrismaApiFeatures {
           }
         });
       } else {
-        // البحث النصي (ILIKE في Prisma)
-        this.where[key] = {
-          contains: value,
-          mode: 'insensitive',
-        };
+        const enumFields = ['status', 'role', 'gender'];
+
+        if (enumFields.includes(key)) {
+          this.where[key] = value;
+        } else {
+          this.where[key] = {
+            contains: value,
+            mode: 'insensitive',
+          };
+        }
       }
     });
 
@@ -84,6 +88,7 @@ export class PrismaApiFeatures {
         skip: this.skip,
         take: this.take,
       }),
+
       prismaModel.count({
         where: this.where,
       }),

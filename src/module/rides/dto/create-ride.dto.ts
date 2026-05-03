@@ -30,5 +30,12 @@ export class CreateRideDto {
   @IsString()
   note?: string;
 
+
+  
+  @ApiProperty({ example: 'Ride Is COMPLETED ' })
+  @IsString()
+  @IsOptional()
+  status: RideStatus;
+
   // rideType?: 'standard' | 'premium' | 'economy';
 }

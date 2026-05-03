@@ -55,4 +55,10 @@ export class RatingController {
   deleteRating(@Param('id') id: string) {
     return this.ratingService.deleteRating(id);
   }
+
+
+@Get('top-rated')
+  getTopRatedDrivers(@Query() query: any) {
+    return this.ratingService.getTopRatedDrivers(query);
+  }
 }

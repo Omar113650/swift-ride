@@ -1,0 +1,44 @@
+version: '3.9'
+
+services:
+
+  app:
+    build: .
+    container_name: swift-ride-app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
+      - db
+    env_file:
+      - .env
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    container_name: swift-ride-redis
+    ports:
+      - "6379:6379"
+    restart: always
+
+  db:
+    image: postgres:15
+    container_name: swift-ride-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: swiftride
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis-ui:
+    image: redis/redisinsight:latest
+    container_name: redis-ui
+    ports:
+      - "5540:5540"
+
+volumes:
+  pgdata:

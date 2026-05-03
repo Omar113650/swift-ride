@@ -41,27 +41,20 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socketId: client.id,
       role,
     });
-
-    console.log(`🟢 ${role} connected: ${userId}`);
   }
-
-  // DISCONNECT
   handleDisconnect(client: Socket) {
     for (const [userId, data] of this.clientsMap.entries()) {
       if (data.socketId === client.id) {
         this.clientsMap.delete(userId);
-        console.log(`🔴 Disconnected: ${userId}`);
         break;
       }
     }
   }
 
-  // GET CLIENT
   getClient(userId: string) {
     return this.clientsMap.get(userId);
   }
 
-  // EMIT TO USER
   emitToUser(userId: string, event: string, data: any) {
     const client = this.getClient(userId);
     if (!client) {
@@ -79,7 +72,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
     }
   }
-  // CHAT
+
   @SubscribeMessage('send_message')
   handleMessage(
     @MessageBody()
@@ -97,23 +90,19 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     const [fromUserId] = sender;
 
-    console.log(`💬 Message from ${fromUserId} to ${data.toUserId}`);
-
     this.emitToUser(data.toUserId, 'receive_message', {
       from: fromUserId,
       message: data.message,
     });
   }
 
-  // BROADCAST
   broadcast(event: string, data: any) {
     this.server.emit(event, data);
   }
 
-  // DRIVER LOCATION
   @SubscribeMessage('driver-location')
   async handleLocation(@MessageBody() data: any) {
-    console.log('📍 DRIVER LOCATION RECEIVED:', data);
+    console.log(' DRIVER LOCATION RECEIVED:', data);
 
     await this.rideTrackingService.updateDriverLocation(data);
   }

@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-  <title>Rider Dashboard</title>
+  <title>Rider notifications</title>
 
   <style>
     body {
@@ -88,7 +88,7 @@
 
 <body>
 
-<h2>🧑‍💻 Rider Dashboard (Bids)</h2>
+<h2>🧑‍💻 Rider notifications (Bids)</h2>
 <p id="status">Connecting...</p>
 
 <div id="bids"></div>
@@ -116,7 +116,6 @@
   });
 
 socket.on('new_bid', (data) => {
-  console.log('🚗 New Bid:', data);
 
   const card = document.createElement('div');
   card.className = 'bid-card';
@@ -144,45 +143,3 @@ socket.on('new_bid', (data) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- -->

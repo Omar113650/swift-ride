@@ -1,3 +1,6 @@
+
+
+
 import { JwtService } from '@nestjs/jwt';
 
 type JwtUser = {
@@ -8,7 +11,7 @@ type JwtUser = {
 
 export const generateTokens = async (
   jwtService: JwtService,
-  user: JwtUser,
+  user: JwtUser
 ) => {
   const payload = {
     sub: user.id,
@@ -19,12 +22,13 @@ export const generateTokens = async (
   const [accessToken, refreshToken] = await Promise.all([
     jwtService.signAsync(payload, {
       secret: process.env.JWT_ACCESS_SECRET,
-      expiresIn: '15m',
-    }),
+      expiresIn: process.env.JWT_ACCESS_EXPIRES || '15m',
+    }as any),
+
     jwtService.signAsync(payload, {
       secret: process.env.JWT_REFRESH_SECRET,
-      expiresIn: '7d',
-    }),
+      expiresIn: process.env.JWT_REFRESH_EXPIRES || '7d',
+    }as any),
   ]);
 
   return {

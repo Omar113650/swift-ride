@@ -68,20 +68,18 @@ async createBid(createRideBidDto: CreateRideBidDto, driverId: string) {
     throw new NotFoundException('Driver not found');
   }
 
-  // 🚀 optional limit (لو عايز)
+
   const bidsCount = await this.prisma.rideBid.count({
     where: {
       rideId: ride.id,
       driverId: driver.id,
     },
   });
+// limit
+  if (bidsCount >= 3) {
+    throw new BadRequestException('Max bids reached');
+  }
 
-  // مثال limit (اختياري)
-  // if (bidsCount >= 3) {
-  //   throw new BadRequestException('Max bids reached');
-  // }
-
-  // ✅ create bid (لازم يكون موجود)
   const newBid = await this.prisma.rideBid.create({
     data: {
       ...createRideBidDto,
@@ -89,7 +87,6 @@ async createBid(createRideBidDto: CreateRideBidDto, driverId: string) {
     },
   });
 
-  // 🚀 notify rider
   this.socketService.emitToUser(
     ride.riderId,
     'new_bid',
@@ -98,7 +95,7 @@ async createBid(createRideBidDto: CreateRideBidDto, driverId: string) {
       bidId: newBid.id,
       driverId: driver.id,
       price: newBid.price,
-      message: '🚗 New driver bid received',
+      message: ' New driver bid received',
     },
   );
 
@@ -107,7 +104,7 @@ async createBid(createRideBidDto: CreateRideBidDto, driverId: string) {
 
   
 
-  // 2️⃣ Update bid (driver can edit before selection)
+
 async updateBid(
   bidId: string,
   updateDto: UpdateRideBidDto,
@@ -151,7 +148,7 @@ async updateBid(
 }
 
 
-  // 3️⃣ Delete bid (driver before selection)
+
 
   async deleteBid(bidId: string, driverId: string) {
     const bid = await this.prisma.rideBid.findUnique({ where: { id: bidId } });
@@ -172,7 +169,7 @@ async updateBid(
   }
 
 
-  // 4️⃣ Rider sees all bids for a ride
+
 
   async getBidsForRide(rideId: string) {
     const ride = await this.prisma.ride.findUnique({
@@ -184,7 +181,7 @@ async updateBid(
   }
 
 
-  // 5️⃣ Rider selects a bid
+
   async selectBid(rideId: string, bidId: string) {
     const bid = await this.prisma.rideBid.findUnique({ where: { id: bidId } });
     if (!bid) throw new NotFoundException('Bid not found');
@@ -201,7 +198,7 @@ async updateBid(
       },
     });
 
-    // mark the bid as selected
+  
     await this.prisma.rideBid.update({
       where: { id: bidId },
       data: { isSelected: true, status: 'ACCEPTED' },
@@ -213,7 +210,7 @@ async updateBid(
       data: { status: 'REJECTED' },
     });
 
-    // // 🚀 real-time notifications
+
     // this.socketService.emitToUser(bid.driverId, 'bid_selected', { rideId, bidId });
     // this.socketService.emitToUser(ride.riderId, 'bid_confirmed', { rideId, bidId });
 
