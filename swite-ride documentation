@@ -1,0 +1,342 @@
+# 🚗 Swite-Ride Project Documentation
+
+---
+
+# 📌 Overview
+
+Swite-Ride is a scalable, real-time ride-hailing backend system built using **NestJS (Node.js framework)**. Unlike traditional ride-hailing platforms, Swite-Ride introduces a **bidding-based ride allocation system**, where drivers compete by submitting bids for ride requests, and riders select the most suitable offer based on price, ETA, or preference.
+
+The system is designed with production-level architecture principles including modular design, real-time communication, caching strategies, and background processing.
+
+---
+
+# 🎯 Objectives
+
+* Build a real-time ride-hailing platform
+* Implement a bidding-based ride selection mechanism
+* Ensure high scalability and maintainability
+* Support live tracking and real-time communication
+* Provide a clean modular architecture ready for microservices migration
+
+---
+
+# 🧠 System Architecture
+
+Swite-Ride follows a **Modular Monolith Architecture** using NestJS.
+
+### Key Principles:
+
+* Each business domain is isolated in its own module
+* Shared logic is extracted into core and shared layers
+* Real-time communication is handled via WebSockets (Socket.IO)
+* Performance optimization is achieved using Redis caching
+
+---
+
+# ⚙️ Tech Stack
+
+## Backend
+
+* NestJS
+* Node.js
+* TypeScript
+
+## Database
+
+* Prisma ORM
+* SQL Database (PostgreSQL or similar)
+
+## Real-Time Communication
+
+* Socket.IO
+
+## Caching Layer
+
+* Redis
+
+## Background Processing
+
+* Cron Jobs
+
+## File Storage
+
+* Cloudinary
+
+## Security
+
+* JWT Authentication
+* Role-Based Access Control (RBAC)
+* Guards & Middleware
+
+## DevOps / Tools
+
+* Docker
+* Docker Compose
+* Postman
+* ESLint / Prettier
+
+---
+
+# 📦 Project Structure
+
+```
+core/
+common/logger/
+config/
+module/
+shared/utils/
+guards/
+middleware/auth/
+prisma/
+redis/
+socket/
+cron/
+cloudinary/
+app.module.ts
+main.ts
+```
+
+---
+
+# 🧱 Modules Overview
+
+## Users Module
+
+* User registration and authentication
+* Role management (Rider / Driver / Admin)
+* Profile management
+
+## Drivers Module
+
+* Driver onboarding
+* Availability status
+* Location updates
+* Earnings tracking
+
+## Rides Module
+
+* Ride creation
+* Ride lifecycle management
+* Status transitions (pending → bidding → active → completed)
+
+## Bids Module
+
+* Real-time bid creation
+* Bid retrieval per ride
+* Accept/reject bid logic
+
+## Payments Module
+
+* Payment processing
+* Transaction history
+
+## Notifications Module
+
+* Real-time notifications via Socket.IO
+* Ride and bid updates
+
+## Rating Module
+
+* Driver and rider rating system
+
+## Vehicle Module
+
+* Vehicle registration and management
+* Driver-vehicle association
+
+## Health Module
+
+* System health checks
+
+---
+
+# 🔐 Security Layer
+
+* JWT-based authentication
+* Role-based access control (RBAC)
+* Guards for route protection
+* Middleware for request validation and user extraction
+
+---
+
+# ⚡ Real-Time System (Socket.IO)
+
+The system heavily relies on WebSockets for real-time interactions:
+
+* Live ride request broadcasting
+* Real-time bid updates
+* Driver location tracking
+* Instant ride status updates
+
+---
+
+# 🗄️ Database Design
+
+### Core Entities
+
+* Users
+* Riders
+* Drivers
+* Rides
+* Bids
+* Vehicles
+* Payments
+
+### Relationships
+
+* Rider → Rides (One-to-Many)
+* Ride → Bids (One-to-Many)
+* Driver → Bids (One-to-Many)
+* Driver → Vehicle (One-to-One / One-to-Many)
+
+---
+
+# 🚀 End-to-End System Workflow
+
+## 1. Application Entry
+
+* User opens the application
+* Authentication check (JWT validation)
+* Role detection (Rider / Driver)
+
+---
+
+## 2. Authentication Flow
+
+* User registers or logs in
+* JWT token is generated
+* Token is stored on client side
+* Protected routes require token validation
+
+---
+
+## 3. Rider Ride Creation Flow
+
+* Rider selects pickup and destination
+* System calculates estimated route (OSRM integration via cron/utility)
+* Ride request is created with status: `PENDING`
+* System broadcasts ride request to available drivers via Socket.IO
+
+---
+
+## 4. Driver Discovery Flow
+
+* Drivers receive real-time ride request
+* Drivers evaluate request (distance, demand, availability)
+* Each driver submits a bid including:
+
+  * Price
+  * ETA
+
+---
+
+## 5. Bidding Phase
+
+* All bids are stored in database and optionally cached in Redis
+* Rider receives live bid updates via WebSocket
+* Rider can compare bids in real-time
+
+---
+
+## 6. Ride Selection
+
+* Rider selects a preferred bid
+* System assigns selected driver to ride
+* Ride status changes to `ACCEPTED`
+* Other bids are rejected automatically
+
+---
+
+## 7. Ride Execution
+
+* Driver starts the ride
+* Ride status changes to `IN_PROGRESS`
+* Live GPS tracking begins
+* Driver location is continuously streamed via Socket.IO
+
+---
+
+## 8. Live Tracking
+
+* Rider sees real-time driver movement on map
+* Location updates are throttled for performance optimization
+
+---
+
+## 9. Ride Completion
+
+* Driver ends the ride
+* System updates status to `COMPLETED`
+* Payment process is triggered
+* Ride data is stored in history
+
+---
+
+## 10. Post-Ride Flow
+
+* Rider rates driver
+* Driver rating is updated
+* Transaction is stored in payments module
+* Analytics data is updated (optional)
+
+---
+
+# ⚙️ Performance Optimization
+
+* Redis caching for ride and bid data
+* Efficient database indexing
+* WebSocket event optimization
+* Background processing using cron jobs
+
+---
+
+# ☁️ Cloud Integration
+
+* Cloudinary for image and document storage
+* Used for driver verification and profile images
+
+---
+
+# 📡 Background Jobs (Cron)
+
+* Route calculation using OSRM
+* Scheduled system cleanup tasks
+* Ride state validation jobs
+
+---
+
+# 🧪 Testing Strategy
+
+* Unit testing for services
+* Integration testing for modules
+* API testing using Postman
+
+---
+
+# 📈 Scalability Design
+
+* Modular architecture supports microservices migration
+* Redis reduces database load
+* Socket.IO supports horizontal scaling (with adapter)
+* Stateless authentication enables load balancing
+
+---
+
+# 🔮 Future Enhancements
+
+* Microservices decomposition
+* Kafka event-driven architecture
+* AI-based dynamic pricing
+* Advanced analytics dashboard
+* Surge pricing system
+* Multi-region deployment
+
+---
+
+# 🏁 Conclusion
+
+Swite-Ride is a production-ready backend system designed with modern software engineering principles. It demonstrates advanced concepts such as real-time communication, modular architecture, scalable system design, and efficient backend orchestration.
+
+---
+
+# 📌 End of Document
