@@ -1,0 +1,218 @@
+import { RideService } from './rides.service';
+import { CreateRideDto } from './dto/create-ride.dto';
+import { RideTrackingService } from './track-live location/ride-tracking.service';
+export declare class RideController {
+    private readonly rideService;
+    private readonly tracking;
+    constructor(rideService: RideService, tracking: RideTrackingService);
+    createRide(req: any, dto: CreateRideDto): Promise<{
+        ride: {
+            id: string;
+            createdAt: Date;
+            status: import(".prisma/client").$Enums.RideStatus;
+            driverId: string | null;
+            route: string | null;
+            riderId: string;
+            pickupLat: number;
+            pickupLng: number;
+            destinationLat: number;
+            destinationLng: number;
+            pickupAddress: string | null;
+            destinationAddress: string | null;
+            selectedPrice: number | null;
+            distance: number | null;
+            polyline: string | null;
+            startedAt: Date | null;
+            completedAt: Date | null;
+            cancelledBy: string | null;
+        };
+        message: string;
+        estimatedTimeMinutes?: undefined;
+        estimatedPrice?: undefined;
+        polyline?: undefined;
+    } | {
+        ride: {
+            id: string;
+            createdAt: Date;
+            status: import(".prisma/client").$Enums.RideStatus;
+            driverId: string | null;
+            route: string | null;
+            riderId: string;
+            pickupLat: number;
+            pickupLng: number;
+            destinationLat: number;
+            destinationLng: number;
+            pickupAddress: string | null;
+            destinationAddress: string | null;
+            selectedPrice: number | null;
+            distance: number | null;
+            polyline: string | null;
+            startedAt: Date | null;
+            completedAt: Date | null;
+            cancelledBy: string | null;
+        };
+        estimatedTimeMinutes: number;
+        estimatedPrice: number | null;
+        polyline: any;
+        message: string;
+    }>;
+    assignDriver(rideId: string, driverId: string): Promise<{
+        id: string;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.RideStatus;
+        driverId: string | null;
+        route: string | null;
+        riderId: string;
+        pickupLat: number;
+        pickupLng: number;
+        destinationLat: number;
+        destinationLng: number;
+        pickupAddress: string | null;
+        destinationAddress: string | null;
+        selectedPrice: number | null;
+        distance: number | null;
+        polyline: string | null;
+        startedAt: Date | null;
+        completedAt: Date | null;
+        cancelledBy: string | null;
+    }>;
+    startRide(rideId: string): Promise<{
+        id: string;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.RideStatus;
+        driverId: string | null;
+        route: string | null;
+        riderId: string;
+        pickupLat: number;
+        pickupLng: number;
+        destinationLat: number;
+        destinationLng: number;
+        pickupAddress: string | null;
+        destinationAddress: string | null;
+        selectedPrice: number | null;
+        distance: number | null;
+        polyline: string | null;
+        startedAt: Date | null;
+        completedAt: Date | null;
+        cancelledBy: string | null;
+    }>;
+    completeRide(rideId: string, distance: number): Promise<{
+        id: string;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.RideStatus;
+        driverId: string | null;
+        route: string | null;
+        riderId: string;
+        pickupLat: number;
+        pickupLng: number;
+        destinationLat: number;
+        destinationLng: number;
+        pickupAddress: string | null;
+        destinationAddress: string | null;
+        selectedPrice: number | null;
+        distance: number | null;
+        polyline: string | null;
+        startedAt: Date | null;
+        completedAt: Date | null;
+        cancelledBy: string | null;
+    }>;
+    cancelRide(rideId: string, cancelledBy: 'rider' | 'driver'): Promise<{
+        id: string;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.RideStatus;
+        driverId: string | null;
+        route: string | null;
+        riderId: string;
+        pickupLat: number;
+        pickupLng: number;
+        destinationLat: number;
+        destinationLng: number;
+        pickupAddress: string | null;
+        destinationAddress: string | null;
+        selectedPrice: number | null;
+        distance: number | null;
+        polyline: string | null;
+        startedAt: Date | null;
+        completedAt: Date | null;
+        cancelledBy: string | null;
+    }>;
+    addRouteHistory(rideId: string, lat: number, lng: number): Promise<{
+        id: string;
+        lat: number;
+        lng: number;
+        rideId: string;
+        timestamp: Date;
+    }>;
+    getRide(rideId: string): Promise<({
+        driver: {
+            rating: number | null;
+            id: string;
+            createdAt: Date;
+            userId: string;
+            licenseNumber: string;
+            nationalId: string;
+            status: import(".prisma/client").$Enums.DriverStatus;
+            isVerified: boolean;
+            currentRideId: string | null;
+            lastLogin: Date | null;
+        } | null;
+        payment: {
+            id: string;
+            createdAt: Date;
+            status: import(".prisma/client").$Enums.PaymentStatus;
+            rideId: string;
+            amount: number;
+            method: import(".prisma/client").$Enums.PaymentMethod;
+            transactionId: string | null;
+            paidAt: Date | null;
+            refundId: string | null;
+        } | null;
+        rider: {
+            name: string;
+            email: string;
+            phone: string;
+            password: string;
+            role: import(".prisma/client").$Enums.UserRole;
+            id: string;
+            isActive: boolean;
+            createdAt: Date;
+            updatedAt: Date;
+        };
+        routeHistory: {
+            id: string;
+            lat: number;
+            lng: number;
+            rideId: string;
+            timestamp: Date;
+        }[];
+    } & {
+        id: string;
+        createdAt: Date;
+        status: import(".prisma/client").$Enums.RideStatus;
+        driverId: string | null;
+        route: string | null;
+        riderId: string;
+        pickupLat: number;
+        pickupLng: number;
+        destinationLat: number;
+        destinationLng: number;
+        pickupAddress: string | null;
+        destinationAddress: string | null;
+        selectedPrice: number | null;
+        distance: number | null;
+        polyline: string | null;
+        startedAt: Date | null;
+        completedAt: Date | null;
+        cancelledBy: string | null;
+    }) | null>;
+    testLocation(body: any): Promise<{
+        success: boolean;
+    }>;
+    getLocation(driverId: string): Promise<any>;
+    getRidesStatsByStatus(): Promise<(import(".prisma/client").Prisma.PickEnumerable<import(".prisma/client").Prisma.RideGroupByOutputType, "status"[]> & {
+        _count: {
+            _all: number;
+        };
+    })[]>;
+    getTotalRides(): Promise<number>;
+}
