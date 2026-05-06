@@ -118,9 +118,9 @@ export class RideService {
   //   calculatePrice: boolean = true,
   // ) {
   //   try {
-  //     this.logger.log(`🚗 Creating ride for rider: ${riderId}`);
+  //     this.logger.log(` Creating ride for rider: ${riderId}`);
 
-  //     // 🧠 0️⃣ Idempotency Check (by rideId)
+  //     //  Idempotency Check (by rideId)
   //     if (dto.rideId) {
   //       const existingRide = await this.prisma.ride.findUnique({
   //         where: {
@@ -129,20 +129,20 @@ export class RideService {
   //       });
 
   //       if (existingRide) {
-  //         this.logger.log('♻️ Ride already exists, returning existing ride');
+  //         this.logger.log(' Ride already exists, returning existing ride');
 
   //         return {
   //           ride: existingRide,
-  //           message: 'Ride already created (idempotent response) ♻️',
+  //           message: 'Ride already created (idempotent response) ',
   //         };
   //       }
   //     }
 
-  //     // 1️⃣ Get coordinates
+  //     // 1 Get coordinates
   //     const pickup = await this.geo.getCoordinates(dto.pickupAddress);
   //     const destination = await this.geo.getCoordinates(dto.destinationAddress);
 
-  //     // 2️⃣ Distance calculation
+  //     // 2 Distance calculation
   //     const distance = this.calculateDistance(
   //       pickup.lat,
   //       pickup.lng,
@@ -150,7 +150,7 @@ export class RideService {
   //       destination.lng,
   //     );
 
-  //     // 3️⃣ ETA
+  //     //  ETA
   //     const avgSpeed = 40;
   //     const estimatedTimeMinutes = Math.ceil((distance / avgSpeed) * 60);
 
@@ -169,10 +169,10 @@ export class RideService {
   //       );
   //     }
 
-  //     // 5️⃣ Save ride in DB
+  //     //  Save ride in DB
   //     const ride = await this.prisma.ride.create({
   //       data: {
-  //         id: dto.rideId, // 👈 important for idempotency
+  //         id: dto.rideId, 
 
   //         pickupLat: pickup.lat,
   //         pickupLng: pickup.lng,
@@ -192,14 +192,14 @@ export class RideService {
   //       },
   //     });
 
-  //     this.logger.log(`✅ Ride created with ID: ${ride.id}`);
+  //     this.logger.log(` Ride created with ID: ${ride.id}`);
 
   //     // ✔ Retry mechanism
   //     // ✔ Dead Letter Queue (failed handling)
   //     // ✔ Proper BullMQ config
   //     // ✔ Worker safe error handling
   //     // ✔ Queue add options
-  //     console.log('📤 ADDING JOB TO QUEUE: ride-created');
+  //     console.log(' ADDING JOB TO QUEUE: ride-created');
   //     await this.rideQueue.add(
   //       'ride-created',
   //       {
@@ -233,10 +233,10 @@ export class RideService {
   //       },
   //     );
 
-  //     console.log('✅ JOB SENT TO QUEUE:', ride.id);
-  //     this.logger.log(`📦 Ride queued for processing: ${ride.id}`);
+  //     console.log(' JOB SENT TO QUEUE:', ride.id);
+  //     this.logger.log(` Ride queued for processing: ${ride.id}`);
 
-  //     // 7️⃣ Return response immediately
+  //     // Return response immediately
   //     return {
   //       ride,
   //       estimatedTimeMinutes,
@@ -245,14 +245,14 @@ export class RideService {
   //     };
   //   } catch (error) {
   //     this.logger.error(
-  //       '❌ Error creating ride',
+  //       ' Error creating ride',
   //       error instanceof Error ? error.stack : String(error),
   //     );
   //     throw error;
   //   }
   // }
 
-  // 📏 Distance formula (Haversine)
+  //  Distance formula (Haversine)
   // private calculateDistance(
   //   lat1: number,
   //   lng1: number,
@@ -383,26 +383,6 @@ export class RideService {
     return bid;
   }
 
-  // calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
-  //   const R = 6371;
-
-  //   const dLat = this.toRad(lat2 - lat1);
-  //   const dLon = this.toRad(lon2 - lon1);
-
-  //   const a =
-  //     Math.sin(dLat / 2) ** 2 +
-  //     Math.cos(this.toRad(lat1)) *
-  //       Math.cos(this.toRad(lat2)) *
-  //       Math.sin(dLon / 2) ** 2;
-
-  //   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  //   return R * c;
-  // }
-
-  // toRad(value: number) {
-  //   return (value * Math.PI) / 180;
-  // }
 
   async getRidesStatsByStatus() {
     return this.prisma.ride.groupBy({
@@ -416,34 +396,6 @@ export class RideService {
   async getTotalRides() {
     return this.prisma.ride.count();
   }
-
-  // async StatusRide(dto: CreateRideDto) {
-  //   const ride = await this.prisma.ride.findUnique({
-  //     where: { id: dto.rideId },
-  //   });
-  //   if (!ride) {
-  //     return 'not exist any ride ';
-  //   }
-
-  //   const stRide = this.prisma.ride.findUnique({
-  //       where: { status: dto.status },
-  //       gropby:{status}
-  //   });
-
-  //   }
-  // }
-
-  // const allowedTransitions = {
-  //   pending: ['accepted', 'cancelled'],
-  //   accepted: ['in_progress', 'cancelled'],
-  //   in_progress: ['completed'],
-  //   completed: [],
-  //   cancelled: [],
-  // };
-
-  // if (!allowedTransitions[ride.status].includes(dto.status)) {
-  //   throw new Error('Invalid status transition');
-  // }
 
   async updateRideStatus(dto: CreateRideDto) {
     const ride = await this.prisma.ride.findUnique({

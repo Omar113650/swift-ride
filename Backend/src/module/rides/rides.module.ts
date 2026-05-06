@@ -10,15 +10,12 @@ import { DriversModule } from '../drivers/drivers.module';
 import { AppGateway } from '../../core/socket/gateways/chat.gateway';
 import { SocketService } from '../../core/socket/socket.service';
 import { RideTrackingService } from './track-live location/ride-tracking.service';
-// import{RidesService} from '../../core/redis/cache'
-// import{RedisCacheModule} from '../../core/redis/cache.module
 import { BullModule } from '@nestjs/bullmq';
 import { RideProcessor } from './BullMQ/ride.processor';
-// import { RedisModule } from '../../core/redis/ride-route.service';
 import { RideConsumer } from '../../common/logger/cache/ride.consumer';
 import { RoutingService } from './routing Ride/routing.service';
 import { RedisService } from '../../common/logger/cache/redis.service';
-// import { RidesService } from '../../core/redis/rides.service';
+
 import * as dotenv from 'dotenv';
 
 import 'dotenv/config';
@@ -28,29 +25,8 @@ dotenv.config();
     GeocodingModule,
     UsersModule,
     DriversModule,
-    // RedisModule,
 
-    // REDIS_HOST=redis-19539.c16.us-east-1-2.ec2.cloud.redislabs.com
-    // REDIS_PORT=19539
-    // REDIS_USER=default
-    // REDIS_PASS=JTH64LWaQ8Hr1bBsc9s8G1FJUbx61jXq
-
-    // BullModule.registerQueue({
-    //   name: 'ride',
-    //   connection: {
-    //     host: "redis-19539.c16.us-east-1-2.ec2.cloud.redislabs.com",
-    //     port: 19539,
-    //     username: "default",
-    //     password:"JTH64LWaQ8Hr1bBsc9s8G1FJUbx61jXq",
-    //   },
-    // }),
-
-    // // Retry mechanism
-    // // ✔ Dead Letter Queue (failed handling)
-    // // ✔ Proper BullMQ config
-    // // ✔ Worker safe error handling
-    // // ✔ Queue add options
-
+    // if queue send message  latter
     // BullModule.registerQueue({
     //   name: 'ride',
     //   connection: {
@@ -68,17 +44,6 @@ dotenv.config();
     //     },
     //     removeOnComplete: true,
     //     removeOnFail: false,
-    //   },
-    // }),
-
-    // // 💀 لازم تضيف دي
-    // BullModule.registerQueue({
-    //   name: 'ride-dead-letter',
-    //   connection: {
-    //     host: 'redis-19539.c16.us-east-1-2.ec2.cloud.redislabs.com',
-    //     port: 19539,
-    //     username: 'default',
-    //     password: 'JTH64LWaQ8Hr1bBsc9s8G1FJUbx61jXq',
     //   },
     // }),
 
@@ -134,11 +99,3 @@ export class RideModule implements NestModule {
     consumer.apply(AuthMiddleware).forRoutes(RideController);
   }
 }
-
-// 👉 ده معناه:
-
-// ✔ RideService بقى Producer
-// ✔ RideConsumer شغال Worker
-// ✔ Queue شغالة
-// ✔ Job بيتنفذ
-// ✔ Socket بيبعت

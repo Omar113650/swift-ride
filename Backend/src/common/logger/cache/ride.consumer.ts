@@ -21,9 +21,9 @@ export class RideConsumer extends WorkerHost {
     console.log(' RideConsumer READY');
   }
 
-  // 🚗 HANDLE RIDE CREATED
+  //  HANDLE RIDE CREATED
   async handleRideCreated(data: any) {
-    console.log('🚗 HANDLE RIDE:', data.rideId);
+    console.log(' HANDLE RIDE:', data.rideId);
 
     const { pickup } = data;
 

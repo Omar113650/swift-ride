@@ -16,8 +16,7 @@ import { RideTrackingService } from './track-live location/ride-tracking.service
 import { Roles } from '../../core/decorators/roles.decorator';
 import { RolesGuard } from '../../core/guards/roles.guard';
 import { ThrottlerGuard } from '@nestjs/throttler';
-// import { JwtAuthGuard } from 'src/core/guards/jwt-auth.guard';
-// import { RidesService } from '../../core/redis/rides.service';
+
 // RedisService
 @ApiTags('Rides')
 @Controller('rides')
@@ -28,7 +27,6 @@ export class RideController {
     // private readonly Rides: RidesService,
   ) {}
 
-
   @Post('add-ride')
   @ApiOperation({ summary: 'Create a new ride' })
   @UseGuards(RolesGuard)
@@ -36,7 +34,6 @@ export class RideController {
   async createRide(@Req() req, @Body() dto: CreateRideDto) {
     return this.rideService.createRide(req.User.sub, dto);
   }
-
 
   @Patch(':rideId/assign/:driverId')
   async assignDriver(
@@ -46,12 +43,10 @@ export class RideController {
     return this.rideService.assignDriver(rideId, driverId);
   }
 
-
   @Patch(':rideId/start')
   async startRide(@Param('rideId') rideId: string) {
     return this.rideService.startRide(rideId);
   }
-
 
   @Patch(':rideId/complete')
   async completeRide(
@@ -69,7 +64,6 @@ export class RideController {
     return this.rideService.cancelRide(rideId, cancelledBy);
   }
 
-
   @Post(':rideId/route')
   async addRouteHistory(
     @Param('rideId') rideId: string,
@@ -78,18 +72,13 @@ export class RideController {
   ) {
     return this.rideService.addRouteHistory(rideId, lat, lng);
   }
-@UseGuards(ThrottlerGuard)
+  @UseGuards(ThrottlerGuard)
   @Get(':rideId')
   async getRide(@Param('rideId') rideId: string) {
     return this.rideService.getRide(rideId);
   }
 
-  // @Get(':rideId/route')
-  // getRoute(@Param('rideId') rideId: string) {
-  //   return this.Rides.getRideRoute(rideId);
-  // }
-
-  //  TEST real-time location
+  //   real-time location
   @Post('tracking/test-location')
   async testLocation(@Body() body: any) {
     return this.tracking.updateDriverLocation(body);
@@ -101,7 +90,7 @@ export class RideController {
   }
 
   @Roles('RIDER', 'DRIVER', 'ADMIN')
-   @Get('status')
+  @Get('status')
   async getRidesStatsByStatus() {
     return this.rideService.getRidesStatsByStatus();
   }
@@ -110,20 +99,4 @@ export class RideController {
   async getTotalRides() {
     return this.rideService.getTotalRides();
   }
-
-  //   @Patch('status')
-  // async updateRideStatus(@Body() dto: UpdateRideStatusDto) {
-  //   return this.rideService.updateRideStatus(dto);
-  // }
-
-
-  // @Get('top')
-  // async getTopRiders() {
-  //   const riders = await this.rideService.getTopRiders();
-  //   return {
-  //     message: 'Top riders fetched successfully',
-  //     data: riders,
-  //   };
-  // }
 }
-

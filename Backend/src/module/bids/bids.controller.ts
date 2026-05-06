@@ -25,7 +25,7 @@ export class RideBidController {
   @UseGuards(RolesGuard)
   @Roles('RIDER', 'DRIVER', 'ADMIN')
   async createBid(@Body() dto: CreateRideBidDto, @Req() req: any) {
-    console.log('USER FROM REQUEST:', req.User); // debug مهم
+    console.log('USER FROM REQUEST:', req.User); 
 
     const driverId = req.User?.sub; 
 

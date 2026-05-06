@@ -10,7 +10,6 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggingInterceptor } from './common/logger/logging.interceptor';
 import { CorrelationIdMiddleware } from './common/logger/correlation-id.middleware';
 import { MiddlewareConsumer } from '@nestjs/common';
-// import { AuthMiddleware } from './core/middleware/auth/auth.middleware';
 import { BidsModule } from './module/bids/bids.module';
 import { RedisModule } from './core/redis/redis.module';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -20,19 +19,12 @@ import { SocketModule } from './core/socket/socket.module';
 import { HealthModule } from './module/health/health.module';
 import { RatingModule } from './module/Rating/rating.module';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { DatabaseSync } from 'node:sqlite';
-import { CloudinaryProvider } from './config/cloudinary.config';
 import jwtConfig from './config/jwt.config';
 import databaseConfig from './config/DB.config';
-
-
-
 
 @Module({
   imports: [
     ScheduleModule.forRoot(),
-
-
 
     ConfigModule.forRoot({
       isGlobal: true,
@@ -59,7 +51,6 @@ import databaseConfig from './config/DB.config';
     BidsModule,
     RedisModule,
     SocketModule,
-    // AuthMiddleware,
     RatingModule,
     HealthModule,
   ],

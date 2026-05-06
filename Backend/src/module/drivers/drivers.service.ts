@@ -101,7 +101,7 @@ async getDrivers(req: any, query: any) {
       context: 'DriverService',
     });
 
-    // 🔥 check cache
+
     const cachedDrivers = await this.redisService.getCache(cacheKey);
 
     if (cachedDrivers) {
@@ -111,7 +111,7 @@ async getDrivers(req: any, query: any) {
       };
     }
 
-    // 🔥 use PrismaApiFeatures correctly
+
     const result = await new PrismaApiFeatures(query)
       .filter()
       .sort()
@@ -122,7 +122,7 @@ async getDrivers(req: any, query: any) {
       throw new NotFoundException('No drivers found');
     }
 
-    // 🔥 cache result
+  
     await this.redisService.setCache(cacheKey, result, 300);
 
     return {

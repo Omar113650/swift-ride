@@ -3,33 +3,19 @@ import { CustomLoggerService } from './custom-logger.service';
 import * as winston from 'winston';
 import { WinstonModule } from 'nest-winston';
 
-
-
-// 🧠 الخلاصة (احفظها كده)
-// ✔️ أبسط Setup:
-// Logger (built-in)
-// ✔️ متوسط:
-// Custom Logger
-// Interceptor
-// ✔️ Pro:
-// Correlation ID
-// Exception Filter
-// ✔️ Enterprise:
-// Winston / Pino
-// Logging to files + services
-
-
 @Module({
   imports: [
     WinstonModule.forRoot({
       transports: [
         new winston.transports.Console(),
-        new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
+        new winston.transports.File({
+          filename: 'logs/error.log',
+          level: 'error',
+        }),
       ],
     }),
   ],
-     providers: [CustomLoggerService],
+  providers: [CustomLoggerService],
   exports: [CustomLoggerService],
 })
 export class LoggerModule {}
-

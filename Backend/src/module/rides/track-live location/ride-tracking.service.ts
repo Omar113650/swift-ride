@@ -7,7 +7,7 @@ export class RideTrackingService {
 
   constructor(
     @Inject('REDIS') private readonly redis: any,
-    // private readonly jwtService: JwtService,
+
   ) {}
 
   async updateDriverLocation(data: {

@@ -58,7 +58,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   emitToUser(userId: string, event: string, data: any) {
     const client = this.getClient(userId);
     if (!client) {
-      console.log(`⚠️ User not connected: ${userId}`);
+      console.log(` User not connected: ${userId}`);
       return;
     }
 

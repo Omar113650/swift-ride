@@ -17,7 +17,7 @@ export class RideDeadLetterConsumer extends WorkerHost {
       stack: job.stacktrace,
     });
 
-    //  1) ignore non-retryable errors
+  
     if (job.failedReason?.includes('Validation')) {
       this.logger.warn(' Skipping retry بسبب validation error');
       return { skipped: true };
@@ -30,13 +30,8 @@ export class RideDeadLetterConsumer extends WorkerHost {
       return { retried: true };
     }
 
-    // save in DB
-    // await this.deadJobService.save(job);
 
-    //  alert admin
-    // await this.alertService.send(job);
-
-    this.logger.error(`🚨 Job permanently failed: ${job.name}`);
+    this.logger.error(`Job permanently failed: ${job.name}`);
 
     return { failed: true };
   }
