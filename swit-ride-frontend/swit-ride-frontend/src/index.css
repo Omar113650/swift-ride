@@ -1,0 +1,309 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+@import 'tailwindcss';
+
+:root {
+  --gold: #f5a623;
+  --gold-light: #ffd080;
+  --gold-dim: #b8761a;
+  --black: #0a0a0a;
+  --black-2: #111111;
+  --black-3: #1a1a1a;
+  --white: #f5f5f0;
+  --white-dim: #a0a09a;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  background-color: var(--black);
+  color: var(--white);
+  font-family: 'Barlow', sans-serif;
+  overflow-x: hidden;
+}
+h1,
+h2,
+h3,
+h4 {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.04em;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--black-2);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gold-dim);
+  border-radius: 3px;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes slideRight {
+  from {
+    transform: translateX(-60px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes carDrive {
+  0% {
+    transform: translateX(-120px);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(calc(100vw + 120px));
+    opacity: 0;
+  }
+}
+@keyframes roadLine {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-200px);
+  }
+}
+@keyframes glowPulse {
+  0%,
+  100% {
+    text-shadow: 0 0 20px rgba(245, 166, 35, 0.3);
+  }
+  50% {
+    text-shadow:
+      0 0 60px rgba(245, 166, 35, 0.8),
+      0 0 100px rgba(245, 166, 35, 0.4);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.8s ease forwards;
+}
+.animate-fade-up-delay-1 {
+  animation: fadeUp 0.8s ease 0.2s both;
+}
+.animate-fade-up-delay-2 {
+  animation: fadeUp 0.8s ease 0.4s both;
+}
+.animate-fade-up-delay-3 {
+  animation: fadeUp 0.8s ease 0.6s both;
+}
+.animate-fade-up-delay-4 {
+  animation: fadeUp 0.8s ease 0.8s both;
+}
+.animate-slide-right {
+  animation: slideRight 0.9s ease 0.3s both;
+}
+.animate-fade-in {
+  animation: fadeIn 1s ease 0.5s both;
+}
+.animate-glow {
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dim) 100%);
+  color: var(--black);
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.1em;
+  font-size: 1.1rem;
+  padding: 14px 40px;
+  border: none;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+}
+.btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(245, 166, 35, 0.5);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--gold);
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.1em;
+  font-size: 1.1rem;
+  padding: 13px 38px;
+  border: 1px solid var(--gold);
+  cursor: pointer;
+  transition: all 0.2s;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+}
+.btn-ghost:hover {
+  background: rgba(245, 166, 35, 0.1);
+  box-shadow: 0 0 20px rgba(245, 166, 35, 0.3);
+}
+
+.stat-card {
+  border: 1px solid rgba(245, 166, 35, 0.15);
+  background: rgba(245, 166, 35, 0.03);
+  padding: 32px 24px;
+  position: relative;
+  transition:
+    border-color 0.3s,
+    background 0.3s;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: var(--gold);
+}
+.stat-card:hover {
+  border-color: rgba(245, 166, 35, 0.4);
+  background: rgba(245, 166, 35, 0.06);
+}
+
+.feature-card {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--black-3);
+  padding: 36px 28px;
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 0.3s,
+    border-color 0.3s;
+}
+.feature-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+.feature-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(245, 166, 35, 0.2);
+}
+.feature-card:hover::after {
+  transform: scaleX(1);
+}
+
+.nav-link {
+  color: var(--white-dim);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color 0.2s;
+  position: relative;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transition: transform 0.3s;
+}
+.nav-link:hover {
+  color: var(--gold);
+}
+.nav-link:hover::after {
+  transform: scaleX(1);
+}
+
+.section-tag {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.25em;
+  font-size: 0.75rem;
+  color: var(--gold);
+  border: 1px solid rgba(245, 166, 35, 0.3);
+  padding: 4px 16px;
+  display: inline-block;
+}
+
+.road-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  overflow: hidden;
+}
+.road {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
+  border-top: 2px solid rgba(245, 166, 35, 0.3);
+}
+.road-lines {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  display: flex;
+  animation: roadLine 2s linear infinite;
+}
+.road-dash {
+  width: 100px;
+  height: 3px;
+  background: rgba(245, 166, 35, 0.5);
+  margin-right: 100px;
+  flex-shrink: 0;
+}
+.car-svg {
+  position: absolute;
+  bottom: 20px;
+  animation: carDrive 8s linear infinite;
+}
