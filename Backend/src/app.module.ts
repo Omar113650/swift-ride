@@ -55,7 +55,6 @@ import databaseConfig from './config/DB.config';
     HealthModule,
   ],
 
-  controllers: [],
   providers: [
     CronService,
     AppGateway,
@@ -66,7 +65,7 @@ import databaseConfig from './config/DB.config';
     },
   ],
 })
-// export class AppModule {}
+
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(CorrelationIdMiddleware).forRoutes('*');

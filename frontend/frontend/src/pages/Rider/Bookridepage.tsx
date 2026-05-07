@@ -19,13 +19,36 @@ export default function BookRidePage() {
 
   useEffect(() => { pickupRef.current?.focus() }, [])
 
-  const handleSubmit = () => {
+  const API = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
+
+  const handleSubmit = async () => {
     if (!pickup || !destination) return
     setLoading(true)
-    setTimeout(() => {
+    try {
+      const token = localStorage.getItem('token')
+      const res = await fetch(`${API}/rides`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          pickupAddress: pickup,
+          destinationAddress: destination,
+          vehicleType: selectedVehicle.toUpperCase(),
+          note,
+          pickupLat: 30.0264, pickupLng: 31.2131,
+          destinationLat: 30.0444, destinationLng: 31.2357,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message ?? 'Failed to create ride')
+      navigate(`/rider/bids/${data.id}`)
+    } catch (_) {
+      navigate('/rider/bids/demo')
+    } finally {
       setLoading(false)
-      navigate('/rider/bids')
-    }, 1800)
+    }
   }
 
   const vehicle = VEHICLE_TYPES.find(v => v.id === selectedVehicle)!

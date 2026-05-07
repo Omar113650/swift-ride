@@ -49,7 +49,7 @@ export class RideConsumer extends WorkerHost {
     console.log(' DRIVERS FOUND:', drivers.length);
 
     for (const driver of drivers) {
-      console.log('📡 EMIT DRIVER:', driver.driverId);
+      console.log(' EMIT DRIVER:', driver.driverId);
 
       this.socketService.emitToDriver(driver.driverId, 'new_ride', {
         rideId: data.rideId,
@@ -88,7 +88,7 @@ export class RideConsumer extends WorkerHost {
 
       //  Dead Letter Queue after max retries
       if (job.attemptsMade >= 4) {
-        console.log('☠️ SENDING TO DEAD LETTER QUEUE');
+        console.log(' SENDING TO DEAD LETTER QUEUE');
 
         await this.deadLetterQueue.add('ride-dead-letter', {
           originalJob: job.name,
